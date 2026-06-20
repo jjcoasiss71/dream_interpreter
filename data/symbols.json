@@ -1,0 +1,183 @@
+{
+  "_README": {
+    "whatIsThis": "This file holds specific DREAM SYMBOLS / THEMES (water, falling, teeth, being chased...). When a user describes a dream, the app searches this file for matching symbols, then hands the matches (with their per-framework perspectives and sources) to an LLM to phrase a grounded interpretation.",
+    "howMatchingWorks": "The app scans the user's dream text for each symbol's 'label' and any of its 'aliases'. For example, the words 'ocean', 'flood', or 'drowning' should all match the 'water' symbol. More aliases = better matching.",
+    "frameworkLink": "Each perspective's 'framework' value matches an 'id' in frameworks.json (e.g. 'jungian', 'continuity-hypothesis'). That is how the two files connect.",
+    "honestyRule": "Every perspective is a SOURCED viewpoint, never a fixed 'this symbol = that meaning' fact. Always attribute to the framework.",
+    "howToEditSafely": "Add new symbols inside the 'symbols' list. Copy an existing entry as a template, keep the commas between entries, and keep all text in \"double quotes\".",
+    "version": "0.1.0",
+    "lastUpdated": "2026-06-21"
+  },
+  "symbols": [
+    {
+      "id": "water",
+      "label": "Water",
+      "aliases": ["ocean", "sea", "river", "lake", "flood", "drowning", "rain", "waves", "swimming", "tide"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Frequently associated with the unconscious and the emotional self; the state of the water (calm, stormy, murky, clear) is taken to mirror the dreamer's inner emotional state.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "May simply reflect waking emotional concerns or recent experiences involving water, stress, or feeling 'overwhelmed' — rather than carrying fixed symbolism.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "falling",
+      "label": "Falling",
+      "aliases": ["fall", "fell", "falling down", "dropping", "plummeting", "losing my balance"],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Often linked to waking feelings of insecurity, loss of control, or instability in some area of life (work, a relationship, finances).",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "sleep-science",
+          "meaning": "Sudden falling sensations near sleep onset can relate to hypnic jerks and the body's transition into sleep, so the imagery may be partly physiological rather than symbolic.",
+          "source": "Walker, M. (2017). Why We Sleep."
+        }
+      ]
+    },
+    {
+      "id": "being-chased",
+      "label": "Being chased",
+      "aliases": ["chased", "chasing me", "running away", "being followed", "pursued", "escaping", "someone after me"],
+      "perspectives": [
+        {
+          "framework": "threat-simulation",
+          "meaning": "A classic example of the brain rehearsing threat avoidance — practicing recognizing and escaping danger in a safe simulated environment.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "May reflect a waking situation the dreamer feels pursued by or is avoiding — a deadline, a confrontation, or an emotion they don't want to face.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "teeth-falling-out",
+      "label": "Teeth falling out",
+      "aliases": ["teeth", "losing teeth", "tooth fell out", "teeth crumbling", "broken teeth"],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Classically interpreted in psychoanalytic tradition as relating to anxiety, though specific readings vary and are widely debated.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Research links these dreams to waking dental irritation or to general anxiety and concerns about appearance, self-image, or loss — consistent with everyday stressors.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "flying",
+      "label": "Flying",
+      "aliases": ["fly", "flew", "floating", "soaring", "levitating", "lifting off"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Can be read as a desire for transcendence, freedom, or rising above a situation; sometimes a sense of liberation or a new perspective.",
+          "source": "Jung, C. G. (1974). Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "May reflect waking feelings of freedom, confidence, or release — or a wish for escape from current pressures.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "exam-or-test",
+      "label": "Taking an exam / being tested",
+      "aliases": ["exam", "test", "unprepared", "failing a test", "didn't study", "school exam", "deadline"],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Strongly tied to waking-life situations where the dreamer feels evaluated, judged, or unprepared — common during periods of performance pressure.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Can be seen as rehearsing a high-stakes social-evaluative challenge, a milder 'threat' the mind practices coping with.",
+          "source": "Revonsuo, A. et al. (2015). Social simulation theory."
+        }
+      ]
+    },
+    {
+      "id": "death",
+      "label": "Death (of self or others)",
+      "aliases": ["dying", "dead", "death", "someone died", "funeral", "I died"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Often read symbolically as transformation, the ending of one phase, or change — rather than literal death.",
+          "source": "Jung, C. G. (1974). Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "May reflect waking concerns about loss, change, grief, or a relationship/situation that is 'ending' in some way.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "nudity",
+      "label": "Being naked in public",
+      "aliases": ["naked", "nude", "no clothes", "undressed in public", "exposed"],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Traditionally connected to exposure, vulnerability, and embarrassment in psychoanalytic readings.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Often linked to waking feelings of vulnerability, being 'exposed,' judged, or unprepared in a social setting.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "house",
+      "label": "House / building",
+      "aliases": ["house", "home", "rooms", "building", "my childhood home", "a strange house"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Sometimes read as a symbol of the self or psyche, with different rooms representing different aspects of the personality or memory.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Familiar places like a home often reflect everyday memory and waking concerns about family, security, or a specific life context.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "snake",
+      "label": "Snake",
+      "aliases": ["snake", "snakes", "serpent", "bitten by a snake"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "A rich archetypal image associated with transformation, instinct, danger, or healing depending on context; meaning is highly personal.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Snakes are a recurring evolutionary threat image; their appearance fits the brain rehearsing fear of an ancestral danger.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams."
+        }
+      ]
+    }
+  ]
+}

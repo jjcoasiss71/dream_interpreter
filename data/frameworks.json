@@ -1,0 +1,176 @@
+{
+  "_README": {
+    "whatIsThis": "This file is the app's KNOWLEDGE BASE of dream-psychology frameworks. It is data, not code. The app reads this file, finds entries relevant to a user's dream, and hands them (with their sources) to an LLM to phrase a grounded interpretation.",
+    "howToEditSafely": "Add or change entries inside the 'frameworks' list below. Each entry is wrapped in { }. Keep the commas between entries, and keep every label and text value in \"double quotes\". You never need to touch the app's code to update this knowledge.",
+    "honestyRule": "Dream interpretation is NOT settled science. Every entry is a SOURCED PERSPECTIVE, never a claim of fact. Interpretations must be attributed to the framework they come from.",
+    "version": "0.1.0",
+    "lastUpdated": "2026-06-21"
+  },
+  "frameworks": [
+    {
+      "id": "jungian",
+      "name": "Jungian (Analytical Psychology)",
+      "founder": "Carl Gustav Jung",
+      "era": "early-to-mid 20th century",
+      "coreIdea": "Dreams are natural, purposeful expressions of the unconscious that compensate for one-sided conscious attitudes and guide psychological growth (individuation). They speak in symbols and archetypes drawn from both personal experience and a shared 'collective unconscious'.",
+      "howItReadsDreams": "A symbol's meaning depends on the dreamer's personal associations (amplification), but recurring motifs may reflect universal archetypes (the Shadow, Anima/Animus, the Self, the Wise Old Man, the Great Mother). Dreams are seen as compensatory: they often surface what the waking mind neglects or represses.",
+      "keyConcepts": [
+        "Collective unconscious",
+        "Archetypes (Shadow, Anima/Animus, Self)",
+        "Compensation",
+        "Individuation",
+        "Amplification (vs. Freud's free association)"
+      ],
+      "strengths": [
+        "Treats dreams as meaningful and growth-oriented rather than purely pathological",
+        "Flexible and personal; avoids a fixed symbol dictionary",
+        "Culturally rich, integrates myth and symbolism"
+      ],
+      "criticisms": [
+        "Concepts like the collective unconscious are difficult to test empirically",
+        "Interpretations can be unfalsifiable",
+        "Limited support from modern cognitive neuroscience"
+      ],
+      "sources": [
+        "Jung, C. G. (1964). Man and His Symbols. Aldus Books.",
+        "Jung, C. G. (1974). Dreams (collected works). Princeton University Press."
+      ]
+    },
+    {
+      "id": "freudian",
+      "name": "Freudian (Psychoanalytic)",
+      "founder": "Sigmund Freud",
+      "era": "1900 onward",
+      "coreIdea": "Dreams are disguised fulfillments of repressed wishes, often rooted in childhood and sexuality. They are 'the royal road to the unconscious.'",
+      "howItReadsDreams": "Distinguishes the 'manifest content' (the remembered dream) from the 'latent content' (the hidden wish). Dream-work mechanisms — condensation, displacement, symbolization, secondary revision — disguise the latent wish so it can slip past the mind's censor. Interpretation works backward via free association.",
+      "keyConcepts": [
+        "Wish fulfillment",
+        "Manifest vs. latent content",
+        "Dream-work (condensation, displacement, symbolization)",
+        "Free association",
+        "The unconscious / repression"
+      ],
+      "strengths": [
+        "Historically foundational; introduced the idea that dreams carry psychological meaning",
+        "Highlights repression, conflict, and disguise"
+      ],
+      "criticisms": [
+        "Heavy emphasis on sexuality is widely seen as overstated",
+        "Largely unfalsifiable; little empirical support",
+        "Modern dream science finds many dreams reflect waking concerns rather than disguised wishes"
+      ],
+      "sources": [
+        "Freud, S. (1900). The Interpretation of Dreams. Franz Deuticke."
+      ]
+    },
+    {
+      "id": "hall-vandecastle",
+      "name": "Hall & Van de Castle (Content Analysis)",
+      "founder": "Calvin S. Hall and Robert Van de Castle",
+      "era": "1966 onward",
+      "coreIdea": "Dreams can be studied empirically by systematically coding their content (characters, social interactions, emotions, settings, objects) across large samples, revealing statistical norms and patterns rather than hidden symbols.",
+      "howItReadsDreams": "Rather than decoding symbols, this approach quantifies what actually appears in dreams. It produced normative data (e.g., dreams contain more aggression than friendliness, more misfortune than good fortune) and lets a person's dreams be compared to population norms.",
+      "keyConcepts": [
+        "Content analysis / coding systems",
+        "Normative dream data",
+        "Cognitive theory of dreaming (Hall)",
+        "Continuity between dreams and waking thought"
+      ],
+      "strengths": [
+        "Empirical, replicable, data-driven",
+        "Avoids speculative symbol interpretation",
+        "Foundation for modern quantitative dream research"
+      ],
+      "criticisms": [
+        "Describes patterns but offers limited 'meaning' for an individual dream",
+        "Coding can be labor-intensive and somewhat subjective"
+      ],
+      "sources": [
+        "Hall, C. S., & Van de Castle, R. L. (1966). The Content Analysis of Dreams. Appleton-Century-Crofts.",
+        "Hall, C. S. (1953). A cognitive theory of dreams. Journal of General Psychology."
+      ]
+    },
+    {
+      "id": "continuity-hypothesis",
+      "name": "Continuity Hypothesis (Domhoff)",
+      "founder": "G. William Domhoff (building on Hall)",
+      "era": "1996 onward",
+      "coreIdea": "Dreams are a dramatized, embodied expression of a person's waking conceptions and emotional concerns. There is strong continuity between what occupies us awake and what we dream about.",
+      "howItReadsDreams": "A dream is read as a window into the dreamer's ongoing preoccupations, relationships, and emotional life — not as coded symbols. If you dream about an exam, the relevant question is what in waking life feels like being tested, evaluated, or unprepared.",
+      "keyConcepts": [
+        "Continuity hypothesis",
+        "Dreams as 'embodied simulations' of waking concerns",
+        "Neurocognitive theory of dreaming",
+        "Consistency of dream content over time"
+      ],
+      "strengths": [
+        "Strong empirical backing from large dream databases",
+        "Grounded in neuroscience and cognitive psychology",
+        "Practical: ties dreams to real waking-life concerns"
+      ],
+      "criticisms": [
+        "Less concerned with the deeper symbolic 'meaning' some users seek",
+        "Continuity is a general pattern, not a precise decoding method"
+      ],
+      "sources": [
+        "Domhoff, G. W. (2003). The Scientific Study of Dreams. American Psychological Association.",
+        "Domhoff, G. W. (1996). Finding Meaning in Dreams: A Quantitative Approach. Plenum Press."
+      ]
+    },
+    {
+      "id": "threat-simulation",
+      "name": "Threat-Simulation Theory (Revonsuo)",
+      "founder": "Antti Revonsuo",
+      "era": "2000 onward",
+      "coreIdea": "Dreaming is an evolved biological function: a virtual rehearsal of threatening events that improved ancestral survival by letting us practice threat recognition and avoidance in a safe, offline simulation.",
+      "howItReadsDreams": "Explains why dreams are disproportionately negative and full of chases, dangers, and misfortune. A nightmare about being chased is read as the brain running a threat-avoidance simulation, not as a coded symbol. A later extension (social simulation theory) applies the same logic to rehearsing social bonds.",
+      "keyConcepts": [
+        "Evolutionary function of dreaming",
+        "Threat rehearsal / simulation",
+        "Negativity bias in dream content",
+        "Social simulation theory (extension)"
+      ],
+      "strengths": [
+        "Explains the prevalence of negative/threatening dream content",
+        "Testable evolutionary predictions",
+        "Consistent with trauma-related increases in threatening dreams"
+      ],
+      "criticisms": [
+        "Not all dreams are threatening; many are mundane or positive",
+        "Hard to prove the evolutionary 'why' directly"
+      ],
+      "sources": [
+        "Revonsuo, A. (2000). The reinterpretation of dreams: An evolutionary hypothesis of the function of dreaming. Behavioral and Brain Sciences, 23(6).",
+        "Revonsuo, A., Tuominen, J., & Valli, K. (2015). The avatars in the machine (social simulation theory)."
+      ]
+    },
+    {
+      "id": "sleep-science",
+      "name": "Modern Sleep & Neuroscience",
+      "founder": "Multiple (Hobson, Stickgold, Walker, and others)",
+      "era": "1977 onward",
+      "coreIdea": "Dreaming is tied to brain activity during sleep (especially REM) and serves functions like memory consolidation and emotional processing. Some content is the cortex making sense of semi-random brainstem signals.",
+      "howItReadsDreams": "Two influential strands: (1) Activation-synthesis (Hobson & McCarley, 1977) — dreams arise as the forebrain synthesizes random REM-generated signals into a narrative, so not every detail is 'meaningful.' (2) Memory & emotion processing — sleep consolidates memories and helps defuse the emotional charge of experiences, so dreams may reflect that overnight processing.",
+      "keyConcepts": [
+        "REM sleep and dreaming",
+        "Activation-synthesis hypothesis",
+        "Memory consolidation during sleep",
+        "Overnight emotional regulation ('overnight therapy')"
+      ],
+      "strengths": [
+        "Grounded in measurable brain activity and experiments",
+        "Explains the bizarre, fragmented quality of many dreams",
+        "Connects dreaming to clear functions (memory, emotion)"
+      ],
+      "criticisms": [
+        "Reduces some 'meaning' to neurobiology, which not everyone finds satisfying",
+        "Dreaming also occurs outside REM, complicating simple models"
+      ],
+      "sources": [
+        "Hobson, J. A., & McCarley, R. W. (1977). The brain as a dream state generator: an activation-synthesis hypothesis. American Journal of Psychiatry.",
+        "Stickgold, R., & Walker, M. P. (2013). Sleep-dependent memory triage. Nature Neuroscience.",
+        "Walker, M. (2017). Why We Sleep. Scribner."
+      ]
+    }
+  ]
+}
