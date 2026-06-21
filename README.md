@@ -2,7 +2,7 @@
 
 A web app that interprets your dreams using **psychological frameworks** and **AI**. Describe a dream, get a grounded, sourced interpretation that respects the complexity of dream analysis.
 
-**Live:** [https://dream-interpreter-sooty.vercel.app](https://dream-interpreter-sooty.vercel.app)
+**Live:** [https://dream-interpreter-coral.vercel.app](https://dream-interpreter-coral.vercel.app)
 
 ## How it works
 
