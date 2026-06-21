@@ -1,26 +1,589 @@
+/* ===========================================================================
+   Dream Interpreter — dual-mode adaptive UI
+   Two hours of the same night: Nightfall (2 AM, a candle) and
+   Daybreak (7 AM, fog at the window). Every adaptive value is a custom
+   property driven by [data-mode] on <body>. Component styles never hardcode
+   color — they read from the tokens below.
+   =========================================================================== */
+
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Mode-fixed ambient tokens (do not change between modes).
+   The two glow layers are always in the DOM and cross-fade by opacity, so
+   each keeps its own signature color regardless of the active mode.
+   --------------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --shell-width: 650px;
+
+  /* Nightfall radial glow — deep amber bleeding up from bottom-center. */
+  --night-glow-core: rgba(200, 131, 42, 0.22);
+  --night-glow-bleed: rgba(255, 107, 26, 0.06);
+
+  /* Daybreak radial glow — pale morning gold, mist-like, from top-center. */
+  --day-glow-core: rgba(220, 198, 160, 0.14);
+  --day-glow-mist: rgba(255, 255, 255, 0.05);
+
+  /* Candle flame — intrinsic warmth, only ever shown in Nightfall. */
+  --flame-core: #ffe6b8;
+  --flame-mid: #e8a040;
+  --flame-edge: #e8731a;
+
+  /* Smoke — thin pale wisp, only ever shown in Daybreak. */
+  --smoke-stroke: rgba(245, 236, 215, 0.5);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ---------------------------------------------------------------------------
+   NIGHTFALL — midnight séance, heavy eyelids, drifting consciousness.
+   --------------------------------------------------------------------------- */
+body[data-mode="nightfall"] {
+  --bg: #0d0905;
+  --glow-primary: #e8a040;
+  --glow-primary-deep: #c8832a;
+  --glow-secondary: rgba(255, 107, 26, 0.04);
+  --text-primary: #f5ecd7;
+  --text-secondary: #a89070;
+  --accent: #5c1a0a;
+  --card-bg: #1a1008;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ---------------------------------------------------------------------------
+   DAYBREAK — soft morning fog, slow awakening, diffused pale light.
+   --text-secondary lifted to #9c8a72 so it clears WCAG AA (~4.9:1) against
+   --card-bg #241e1a. The spec's #8c7a65 lands at ~4.0:1 — under AA — and the
+   contrast constraint is explicit ("groggy morning eyes need contrast"), so
+   it wins over the listed hex.
+   --------------------------------------------------------------------------- */
+body[data-mode="daybreak"] {
+  --bg: #2a2420;
+  --glow-primary: #dcc6a0;
+  --glow-primary-deep: #dcc6a0;
+  --glow-secondary: rgba(255, 255, 255, 0.06);
+  --text-primary: #f5ecd7;
+  --text-secondary: #9c8a72;
+  --accent: #5c1a0a;
+  --card-bg: #241e1a;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body), Garamond, "EB Garamond", serif;
+  font-size: 1.125rem;
+  line-height: 1.9;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Mode switch: cross-fade the background over 800ms. */
+  transition: background-color 800ms ease-in-out, color 800ms ease-in-out;
+}
+
+/* Custom scrollbar — thin, dark, no track background. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-secondary) 40%, transparent)
+    transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-secondary) 35%, transparent);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text-secondary) 55%, transparent);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--glow-primary) 30%, transparent);
+  color: var(--text-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   Ambient glow layers — fixed, full-bleed, cross-fading by opacity.
+   --------------------------------------------------------------------------- */
+.page-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Mode switch: cross-fade glow over 800ms. */
+  transition: opacity 800ms ease-in-out;
+}
+
+.page-glow--night {
+  background: radial-gradient(
+    120% 75% at 50% 100%,
+    var(--night-glow-core) 0%,
+    var(--night-glow-bleed) 26%,
+    transparent 62%
+  );
+}
+
+.page-glow--day {
+  background:
+    radial-gradient(
+      130% 70% at 50% 0%,
+      var(--day-glow-core) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      100% 100% at 50% 35%,
+      var(--day-glow-mist) 0%,
+      transparent 70%
+    );
+}
+
+body[data-mode="nightfall"] .page-glow--day {
+  opacity: 0;
+}
+body[data-mode="daybreak"] .page-glow--night {
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Shell / layout
+   --------------------------------------------------------------------------- */
+.shell {
+  position: relative;
+  z-index: 1;
+  max-width: var(--shell-width);
+  margin: 0 auto;
+  padding: 4.5rem 1.75rem 6rem;
+  /* Page load: eyes adjusting to the room. */
+  opacity: 0;
+  animation: pageIn 1.5s ease forwards;
+}
+
+@keyframes pageIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Accent stage — candle flame (Nightfall) / smoke wisp (Daybreak)
+   --------------------------------------------------------------------------- */
+.accent-stage {
+  position: relative;
+  height: 64px;
+  margin: 0 auto 2.25rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Candle flame */
+.flame {
+  position: absolute;
+  bottom: 4px;
+  width: 14px;
+  height: 30px;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(
+    ellipse 70% 80% at 50% 72%,
+    var(--flame-core) 0%,
+    var(--flame-mid) 38%,
+    var(--flame-edge) 72%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 22px 6px color-mix(in srgb, var(--flame-mid) 50%, transparent),
+    0 -2px 46px 14px color-mix(in srgb, var(--flame-edge) 28%, transparent),
+    0 0 90px 30px color-mix(in srgb, var(--flame-mid) 14%, transparent);
+  transform-origin: 50% 100%;
+  animation: flicker 2s ease-in-out infinite;
+  /* Flame fades out over 400ms when leaving Nightfall. */
+  transition: opacity 400ms ease;
+}
+
+/* Small wick-glow under the flame */
+.flame::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 3px;
+  height: 5px;
+  transform: translateX(-50%);
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(1.02, 0.99) translateY(-0.5px);
+    opacity: 0.92;
+  }
+  40% {
+    transform: scale(0.98, 1.02) translateX(0.4px);
+    opacity: 0.85;
+  }
+  60% {
+    transform: scale(1.01, 0.98) translateX(-0.3px);
+    opacity: 0.97;
+  }
+  80% {
+    transform: scale(0.99, 1.01) translateY(-0.3px);
+    opacity: 0.9;
+  }
+}
+
+/* Smoke wisp */
+.smoke {
+  position: absolute;
+  bottom: 0;
+  width: 40px;
+  height: 64px;
+  overflow: visible;
+  /* Smoke fades in 400ms after the flame has gone. */
+  transition: opacity 400ms ease 400ms;
+}
+
+.smoke path {
+  fill: none;
+  stroke: var(--smoke-stroke);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 56 220;
+  filter: blur(1.4px);
+  animation: smokeRise 3.6s linear infinite;
+}
+
+.smoke-sway {
+  transform-origin: 50% 100%;
+  animation: smokeSway 4s ease-in-out infinite;
+}
+
+@keyframes smokeRise {
+  0% {
+    stroke-dashoffset: 256;
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.55;
+  }
+  78% {
+    opacity: 0.32;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes smokeSway {
+  0%,
+  100% {
+    transform: translateX(-1.5px) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateX(1.5px) rotate(1.5deg);
+  }
+}
+
+/* Visibility per mode */
+body[data-mode="daybreak"] .flame {
+  opacity: 0;
+}
+body[data-mode="nightfall"] .smoke {
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Header
+   --------------------------------------------------------------------------- */
+.masthead {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-family: var(--font-heading), "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-size: clamp(2.6rem, 8vw, 3.6rem);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  margin: 0;
+  color: var(--text-primary);
+  text-shadow: 0 0 38px color-mix(in srgb, var(--glow-primary) 22%, transparent);
+  transition: text-shadow 800ms ease-in-out;
+}
+
+.subtitle {
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin: 1.1rem auto 0;
+  max-width: 38ch;
+  transition: color 800ms ease-in-out;
+}
+
+/* ---------------------------------------------------------------------------
+   Mode toggle — centered below the header. Pill, no skeuomorphism.
+   --------------------------------------------------------------------------- */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 auto 3.25rem;
+}
+
+.toggle-label {
+  font-family: var(--font-heading), serif;
+  font-size: 0.86rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  transition: color 500ms ease, text-shadow 500ms ease;
+}
+
+/* Active label glows in its mode color. */
+body[data-mode="nightfall"] .toggle-label--night,
+body[data-mode="daybreak"] .toggle-label--day {
+  color: var(--text-primary);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--glow-primary) 60%, transparent);
+}
+
+.toggle {
+  position: relative;
+  width: 58px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 22%, transparent);
+  background: #0d0905;
+  cursor: pointer;
+  padding: 0;
+  flex: 0 0 auto;
+  transition: box-shadow 600ms ease, border-color 600ms ease;
+}
+
+/* The active side glows faintly in the mode color. */
+body[data-mode="nightfall"] .toggle {
+  box-shadow:
+    inset 10px 0 16px -10px color-mix(in srgb, var(--glow-primary) 70%, transparent);
+}
+body[data-mode="daybreak"] .toggle {
+  box-shadow:
+    inset -10px 0 16px -10px color-mix(in srgb, var(--glow-primary) 70%, transparent);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: radial-gradient(
+    circle at 40% 35%,
+    color-mix(in srgb, var(--glow-primary) 85%, var(--text-primary)) 0%,
+    var(--glow-primary-deep) 70%
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 55%, transparent);
+  transition: left 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    background 600ms ease, box-shadow 600ms ease;
+}
+
+body[data-mode="daybreak"] .toggle-knob {
+  left: 34px;
+}
+
+/* ---------------------------------------------------------------------------
+   Composer — textarea + submit
+   --------------------------------------------------------------------------- */
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dream-input {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  padding: 1.4rem 1.5rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--bg) 88%, var(--card-bg));
+  color: var(--text-primary);
+  font-family: var(--font-body), serif;
+  font-size: 1.18rem;
+  line-height: 1.9;
+  outline: none;
+  transition: border-color 500ms ease, box-shadow 500ms ease,
+    background 800ms ease-in-out;
+}
+
+.dream-input::placeholder {
+  color: color-mix(in srgb, var(--text-primary) 42%, transparent);
+  font-style: italic;
+}
+
+.dream-input:focus {
+  border-color: color-mix(in srgb, var(--glow-primary) 45%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow-primary) 25%, transparent),
+    0 0 26px -4px color-mix(in srgb, var(--glow-primary) 35%, transparent);
+}
+
+/* Submit — dark wax seal. */
+.seal-button {
+  align-self: center;
+  padding: 0.95rem 2.6rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--glow-primary) 28%, transparent);
+  background: #0d0905;
+  color: color-mix(in srgb, var(--glow-primary) 78%, var(--text-secondary));
+  font-family: var(--font-heading), serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow 500ms ease, border-color 500ms ease, color 500ms ease,
+    opacity 400ms ease;
+}
+
+.seal-button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--glow-primary) 60%, transparent);
+  color: color-mix(in srgb, var(--glow-primary) 95%, var(--text-primary));
+  box-shadow: 0 0 22px -2px color-mix(in srgb, var(--glow-primary) 40%, transparent),
+    inset 0 0 18px -8px color-mix(in srgb, var(--glow-primary) 45%, transparent);
+}
+
+.seal-button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------------------
+   Dividers — barely there.
+   --------------------------------------------------------------------------- */
+.rule {
+  height: 1px;
+  border: 0;
+  margin: 1.75rem 0;
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Error
+   --------------------------------------------------------------------------- */
+.notice {
+  margin-top: 2.5rem;
+  padding: 1.1rem 1.4rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--card-bg));
+  color: var(--text-primary);
+  font-style: italic;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Result card — paper catching the light at its top edge.
+   --------------------------------------------------------------------------- */
+.result-card {
+  position: relative;
+  margin-top: 3rem;
+  padding: 2.5rem 2.25rem 2.25rem;
+  border-radius: 16px;
+  background: var(--card-bg);
+  border-top: 1px solid color-mix(in srgb, var(--glow-primary) 55%, transparent);
+  box-shadow: inset 0 22px 40px -34px color-mix(in srgb, var(--glow-primary) 90%, transparent);
+  transition: background 800ms ease-in-out, border-color 800ms ease-in-out,
+    box-shadow 800ms ease-in-out;
+}
+
+.interpretation {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.16rem;
+  line-height: 1.95;
+}
+
+/* Result text reveals line by line — a scroll slowly unrolled. */
+.reveal-line {
+  display: block;
+  margin: 0 0 0.85rem;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: lineIn 1.1s ease forwards;
+}
+.reveal-line:last-child {
+  margin-bottom: 0;
+}
+
+@keyframes lineIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-meta {
+  margin-top: 1.75rem;
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+.result-meta p {
+  margin: 0.35rem 0;
+}
+.result-meta .meta-key {
+  color: color-mix(in srgb, var(--text-primary) 80%, var(--text-secondary));
+  font-style: italic;
+}
+
+.disclaimer {
+  margin: 1.5rem 0 0;
+  font-size: 0.84rem;
+  font-style: italic;
+  color: color-mix(in srgb, var(--text-secondary) 78%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion — let the room be still.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .shell,
+  .flame,
+  .smoke path,
+  .smoke-sway,
+  .reveal-line {
+    animation: none !important;
+  }
+  .shell,
+  .reveal-line {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
