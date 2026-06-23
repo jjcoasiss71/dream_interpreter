@@ -40,6 +40,8 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("nightfall");
   const [phase, setPhase] = useState<Phase>("writing");
   const [cineStage, setCineStage] = useState<CineStage>("write");
+  // If public/candle.png exists it replaces the CSS-drawn candle.
+  const [candlePhotoOk, setCandlePhotoOk] = useState(false);
   const [dream, setDream] = useState("");
   const [sentText, setSentText] = useState("");
   const [result, setResult] = useState<Result | null>(null);
@@ -57,6 +59,15 @@ export default function Home() {
   useEffect(() => {
     document.body.dataset.mode = mode;
   }, [mode]);
+
+  // Detect the candle photo via a preloader so a cached image (which can
+  // finish before React attaches an onLoad handler) is still detected.
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = () => setCandlePhotoOk(true);
+    img.onerror = () => setCandlePhotoOk(false);
+    img.src = "/candle.png";
+  }, []);
 
   async function seal() {
     if (dream.trim().length < 3 || phase === "sending") return;
@@ -171,18 +182,34 @@ export default function Home() {
             </button>
           </div>
 
-          {/* The candle — an antique brass chamberstick above the letter. */}
+          {/* The candle — an antique brass chamberstick above the letter.
+             A real candle.png (if present) replaces the CSS candle; the
+             breathing/guttering halo stays behind it as the living light. */}
           <div className="accent-stage" aria-hidden="true">
             <div className="candle">
               <span className="candle-halo" />
-              <span className="holder-handle" />
-              <span className="holder-dish" />
-              <span className="holder-socket" />
-              <span className="taper" />
-              <span className="wick" />
-              <span className="flame">
-                <span className="flame-core" />
-              </span>
+              {!candlePhotoOk && (
+                <>
+                  <span className="holder-handle" />
+                  <span className="holder-dish" />
+                  <span className="holder-socket" />
+                  <span className="taper" />
+                  <span className="wick" />
+                  <span className="flame">
+                    <span className="flame-core" />
+                  </span>
+                </>
+              )}
+              {candlePhotoOk && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className="candle-photo"
+                  src="/candle.png"
+                  alt=""
+                  aria-hidden="true"
+                  style={{ opacity: 1 }}
+                />
+              )}
               <svg className="smoke" viewBox="0 0 40 80" fill="none">
                 <g className="smoke-sway">
                   <path d="M20 78 C 12 66, 28 56, 20 44 C 12 32, 28 22, 20 10 C 17 4, 22 2, 20 0" />
@@ -283,6 +310,10 @@ export default function Home() {
           )}
         </main>
       </div>
+
+      {/* Atmosphere: the dark room pressing in, and a faint film grain. */}
+      <div className="vignette" aria-hidden="true" />
+      <div className="grain" aria-hidden="true" />
 
       {/* Consciousness fading */}
       <div className="faint-veil" aria-hidden="true" />

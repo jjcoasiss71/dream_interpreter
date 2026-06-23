@@ -56,6 +56,8 @@ body[data-mode="nightfall"] {
   --desk-bright: 0.42;
   --desk-veil-center: rgba(8, 4, 1, 0.32);
   --desk-veil-edge: rgba(3, 2, 1, 0.97);
+  /* the dark room pressing in (subtle-dread atmosphere) */
+  --vignette-edge: rgba(0, 0, 0, 0.74);
   /* The letter — aged parchment with dark ink, catching candlelight */
   --paper: #e7d6ac;
   --paper-glow: rgba(255, 244, 214, 0.55);
@@ -93,6 +95,8 @@ body[data-mode="daybreak"] {
   --desk-bright: 0.72;
   --desk-veil-center: rgba(10, 8, 5, 0.1);
   --desk-veil-edge: rgba(8, 6, 4, 0.74);
+  /* lighter morning, but the unease never fully leaves */
+  --vignette-edge: rgba(0, 0, 0, 0.46);
   /* The letter — parchment, cooler and a touch lighter in the morning */
   --paper: #ece2c8;
   --paper-glow: rgba(255, 252, 240, 0.5);
@@ -253,7 +257,7 @@ body {
     var(--night-glow-bleed) 30%,
     transparent 64%
   );
-  animation: candleBreath 2s ease-in-out infinite;
+  animation: candleLife 8s ease-in-out infinite;
 }
 
 .page-glow--day {
@@ -269,19 +273,44 @@ body[data-mode="daybreak"] .page-glow--night {
   opacity: 0;
 }
 
-@keyframes candleBreath {
-  0%,
-  100% {
+/* gentle breathing for most of the loop, then a sudden draft-gutter near the
+   end where the light dips hard and the shadows lurch — quiet dread */
+@keyframes candleLife {
+  0% {
     opacity: 1;
   }
-  35% {
-    opacity: 0.86;
+  14% {
+    opacity: 0.9;
   }
-  60% {
-    opacity: 0.95;
+  28% {
+    opacity: 1;
   }
-  80% {
+  44% {
     opacity: 0.88;
+  }
+  58% {
+    opacity: 0.98;
+  }
+  74% {
+    opacity: 0.92;
+  }
+  84% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 0.4;
+  }
+  88.5% {
+    opacity: 0.92;
+  }
+  90.5% {
+    opacity: 0.52;
+  }
+  93% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
@@ -295,12 +324,23 @@ body[data-mode="daybreak"] .page-glow--night {
   margin: 0 auto;
   padding: 2.25rem 1.75rem 4rem;
   opacity: 0;
-  animation: pageIn 1.5s ease forwards;
+  /* page-in, then a slow idle breath as if you're hunched over the desk */
+  animation: pageIn 1.5s ease forwards,
+    sceneBreathe 9s ease-in-out 1.5s infinite;
 }
 
 @keyframes pageIn {
   to {
     opacity: 1;
+  }
+}
+@keyframes sceneBreathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.005);
   }
 }
 
@@ -331,9 +371,9 @@ body[data-mode="daybreak"] .page-glow--night {
   left: 50%;
 }
 
-/* soft diffuse halo the flame throws into the room */
+/* soft diffuse halo the flame throws into the room (sits on the photo flame) */
 .candle-halo {
-  bottom: 60px;
+  bottom: 40px;
   width: 210px;
   height: 210px;
   margin-left: -105px;
@@ -344,7 +384,7 @@ body[data-mode="daybreak"] .page-glow--night {
     color-mix(in srgb, var(--flame-mid) 22%, transparent) 0%,
     transparent 62%
   );
-  animation: candleBreath 2.4s ease-in-out infinite;
+  animation: candleLife 8s ease-in-out infinite;
   transition: opacity 600ms ease;
 }
 
@@ -1085,6 +1125,63 @@ body[data-mode="daybreak"] .toggle-knob {
 }
 
 /* ===========================================================================
+   ATMOSPHERE — subtle first-person-horror dread (vignette + film grain).
+   Both sit above the content but below the faint veil; clicks pass through.
+   =========================================================================== */
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: radial-gradient(
+    125% 88% at 50% 42%,
+    transparent 36%,
+    var(--vignette-edge) 100%
+  );
+  transition: background 800ms ease-in-out;
+}
+
+.grain {
+  position: fixed;
+  inset: -55%;
+  z-index: 35;
+  width: 210%;
+  height: 210%;
+  pointer-events: none;
+  background-image: url("/noise.svg");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  animation: grainShift 0.55s steps(3) infinite;
+}
+@keyframes grainShift {
+  0% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-5%, 3%);
+  }
+  66% {
+    transform: translate(4%, -4%);
+  }
+  100% {
+    transform: translate(-3%, 2%);
+  }
+}
+
+/* The candle photo (public/candle.png), if present, replaces the CSS candle.
+   The breathing/guttering halo stays behind it as the living light. */
+.candle-photo {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 185px;
+  margin-left: -92.5px;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.7));
+  transition: opacity 600ms ease;
+}
+
+/* ===========================================================================
    STEP 6c — The faint + STEP 6d — dream world (placeholder)
    =========================================================================== */
 
@@ -1196,6 +1293,7 @@ body[data-mode="daybreak"] .toggle-knob {
   .flame,
   .flame-core,
   .candle-halo,
+  .grain,
   .smoke path,
   .smoke-sway,
   .reveal-line,
@@ -1203,6 +1301,9 @@ body[data-mode="daybreak"] .toggle-knob {
   .cine-text,
   .cine-nib {
     animation: none !important;
+  }
+  .grain {
+    opacity: 0.04 !important;
   }
   .shell,
   .reveal-line,
