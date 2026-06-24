@@ -1822,6 +1822,75 @@ body[data-paper="photo"] .parchment {
 }
 
 /* ---------------------------------------------------------------------------
+   Mobile — keep the candlelit scene, fit it to a small portrait screen.
+   --------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+  /* header: smaller title, tighter controls */
+  .app-header {
+    height: 112px;
+    padding: 0.9rem 1rem 0;
+  }
+  .app-title {
+    top: 2.7rem;
+    font-size: clamp(1.25rem, 7.4vw, 2rem);
+    letter-spacing: 0.05em;
+  }
+  .header-btn {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+  }
+  .app-header__controls {
+    gap: 0.7rem;
+  }
+  .settings-panel {
+    top: 62px;
+    right: 1rem;
+  }
+
+  /* the scene clears the header */
+  .shell {
+    padding: 126px 0.85rem 4rem;
+  }
+
+  /* the paper fits the phone */
+  .scene-content .paper-sheet {
+    width: 94%;
+    min-height: 440px;
+    margin-top: 18px;
+  }
+  .parchment {
+    padding: 1.3rem 1.2rem 1.6rem;
+  }
+  .dream-input,
+  .dream-vanishing {
+    font-size: 1.15rem;
+  }
+  .interpretation {
+    font-size: 1.12rem;
+  }
+  .seal-button {
+    padding: 0.85rem 2rem;
+  }
+
+  /* fill the small screen rather than zooming far out */
+  .viewport[data-view="desk"] .stage {
+    transform: scale(0.9) translateY(-1%);
+  }
+  .viewport[data-view="paper"] .stage {
+    transform: scale(0.95);
+  }
+  .viewport[data-view="writing"] .stage {
+    transform: scale(1);
+  }
+
+  .scene-hint {
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    bottom: 6%;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Reduced motion — let the room be still. Faint becomes a plain crossfade.
    --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
