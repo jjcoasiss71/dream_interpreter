@@ -60,7 +60,9 @@ body[data-mode="nightfall"] {
   --vignette-edge: rgba(0, 0, 0, 0.74);
   /* The letter — aged parchment with dark ink, catching candlelight */
   --paper: #e7d6ac;
-  --paper-glow: rgba(255, 244, 214, 0.55);
+  --paper-glow: rgba(255, 228, 164, 0.5);
+  --paper-cast: rgba(232, 160, 64, 0.22);
+  --paper-shade: rgba(26, 15, 6, 0.36);
   --paper-line: rgba(92, 50, 20, 0.16);
   --paper-edge: rgba(54, 34, 14, 0.55);
   --ink: #34240f;
@@ -99,7 +101,9 @@ body[data-mode="daybreak"] {
   --vignette-edge: rgba(0, 0, 0, 0.46);
   /* The letter — parchment, cooler and a touch lighter in the morning */
   --paper: #ece2c8;
-  --paper-glow: rgba(255, 252, 240, 0.5);
+  --paper-glow: rgba(255, 250, 236, 0.45);
+  --paper-cast: rgba(220, 206, 178, 0.16);
+  --paper-shade: rgba(40, 32, 18, 0.2);
   --paper-line: rgba(92, 60, 28, 0.14);
   --paper-edge: rgba(60, 44, 22, 0.4);
   --ink: #3a2c16;
@@ -194,7 +198,8 @@ body {
   background-position: center, 22% 28%, 74% 70%, center, center, center;
   background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat;
   filter: brightness(var(--desk-bright)) saturate(0.85);
-  transition: background-color 800ms ease-in-out, filter 2600ms ease;
+  transition: background-color 800ms ease-in-out, filter 2600ms ease,
+    transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Candle pool: the wood is visible in the center, the edges fall to black —
@@ -234,6 +239,207 @@ body {
   transform-origin: 50% 100%;
   /* Faint (6c): the head tilts back, the desk falls away. */
   transition: transform 2600ms ease, filter 2600ms ease, opacity 1000ms ease;
+}
+
+/* ===========================================================================
+   CAMERA ZOOM SYSTEM — desk / paper / writing.
+   The stage scales the scene content; the desk scales a little less, so the
+   paper comes toward you (parallax depth). The faint lives on .camera, so the
+   two transforms compose without conflict. Each view can also be given its
+   own desk/background treatment via the [data-view] hooks below.
+   =========================================================================== */
+.stage {
+  transform-origin: center 42%;
+  transition: transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.viewport[data-view="desk"] .stage {
+  transform: scale(0.74) translateY(-1.5%);
+}
+.viewport[data-view="paper"] .stage {
+  transform: scale(0.85);
+}
+.viewport[data-view="writing"] .stage {
+  transform: scale(0.98) translateY(1%);
+}
+.viewport[data-view="desk"] .desk {
+  transform: scale(1);
+}
+.viewport[data-view="paper"] .desk {
+  transform: scale(1.06);
+}
+.viewport[data-view="writing"] .desk {
+  transform: scale(1.12);
+}
+
+/* ===========================================================================
+   DESK_VIEW backdrop — the composed scene photo, shown only in desk view and
+   crossfading away as you lean in to the live, writable scene beneath.
+   =========================================================================== */
+.scene-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #000 url("/scene.jpg") center / cover no-repeat;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  /* the lean-in crossfade */
+  transition: opacity 1300ms ease, transform 1300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.viewport[data-view="desk"] .scene-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* a soft, breathing flame glow laid over the candle in the photo so it lives */
+.scene-flame {
+  position: absolute;
+  left: 47%;
+  top: 16%;
+  width: 86px;
+  height: 110px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 42%,
+    color-mix(in srgb, var(--flame-mid) 60%, transparent) 0%,
+    color-mix(in srgb, var(--flame-edge) 26%, transparent) 36%,
+    transparent 70%
+  );
+  filter: blur(5px);
+  mix-blend-mode: screen;
+  animation: flicker 2.3s ease-in-out infinite;
+}
+/* gentle "click to enter" hint, low in the frame */
+.scene-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  transform: translateX(-50%);
+  font-family: var(--font-heading), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--glow-primary) 45%, transparent);
+  pointer-events: none;
+  animation: hintPulse 3.4s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* ===========================================================================
+   HEADER — a quiet UI layer above the scene that never zooms.
+   =========================================================================== */
+.app-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 132px;
+  z-index: 36;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 1.7rem 2rem 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent);
+}
+.app-header button {
+  pointer-events: auto;
+}
+.app-title {
+  position: absolute;
+  left: 50%;
+  top: 3rem;
+  transform: translateX(-50%);
+  font-family: var(--font-title), var(--font-heading), serif;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  font-size: clamp(2.5rem, 6.4vw, 3.8rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--text-primary) 95%, transparent);
+  text-shadow: 0 0 36px color-mix(in srgb, var(--glow-primary) 42%, transparent),
+    0 2px 20px rgba(0, 0, 0, 0.65);
+}
+.app-header__controls {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+.header-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-heading), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-secondary) 92%, transparent);
+  transition: color 400ms ease, text-shadow 400ms ease;
+}
+.header-btn:hover {
+  color: var(--text-primary);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 50%, transparent);
+}
+.header-btn--icon {
+  font-size: 1.05rem;
+  letter-spacing: 0;
+}
+
+.settings-panel {
+  position: fixed;
+  top: 86px;
+  right: 2rem;
+  z-index: 37;
+  padding: 1rem 1.4rem 1.2rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card-bg) 92%, #000);
+  border: 1px solid color-mix(in srgb, var(--glow-primary) 18%, transparent);
+  box-shadow: 0 14px 44px -14px rgba(0, 0, 0, 0.85);
+}
+.settings-panel__label {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-heading), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-secondary);
+}
+.settings-panel .toggle-row {
+  margin: 0;
+}
+
+/* ===========================================================================
+   SCENE CONTENT — the candle is grounded on the desk, BEHIND the paper, so
+   the paper occludes its base and only the flame + upper taper rise above it.
+   =========================================================================== */
+.scene-content {
+  position: relative;
+}
+.scene-content .accent-stage {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 1;
+}
+.scene-content .journal {
+  position: relative;
+  z-index: 2;
+  margin-top: 104px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -322,7 +528,7 @@ body[data-mode="daybreak"] .page-glow--night {
   z-index: 2;
   max-width: var(--shell-width);
   margin: 0 auto;
-  padding: 2.25rem 1.75rem 4rem;
+  padding: 150px 1.75rem 5rem;
   opacity: 0;
   /* page-in, then a slow idle breath as if you're hunched over the desk */
   animation: pageIn 1.5s ease forwards,
@@ -1045,7 +1251,7 @@ body[data-mode="daybreak"] .toggle-knob {
 }
 .interpretation {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--ink);
   font-size: 1.16rem;
   line-height: 1.95;
 }
@@ -1054,6 +1260,9 @@ body[data-mode="daybreak"] .toggle-knob {
   margin: 0 0 0.85rem;
   opacity: 0;
   transform: translateY(8px);
+}
+/* lines unroll only once the journal has turned to the interpretation */
+.journal[data-turned="true"] .reveal-line {
   animation: lineIn 1.1s ease forwards;
 }
 .reveal-line:last-child {
@@ -1068,20 +1277,20 @@ body[data-mode="daybreak"] .toggle-knob {
 .result-meta {
   margin-top: 1.75rem;
   font-size: 0.96rem;
-  color: var(--text-secondary);
+  color: color-mix(in srgb, var(--ink) 72%, transparent);
 }
 .result-meta p {
   margin: 0.35rem 0;
 }
 .result-meta .meta-key {
-  color: color-mix(in srgb, var(--text-primary) 80%, var(--text-secondary));
+  color: var(--ink);
   font-style: italic;
 }
 .disclaimer {
   margin: 1.5rem 0 0;
   font-size: 0.84rem;
   font-style: italic;
-  color: color-mix(in srgb, var(--text-secondary) 78%, transparent);
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
 }
 
 /* after the interpretation: step inside / write again */
@@ -1117,11 +1326,255 @@ body[data-mode="daybreak"] .toggle-knob {
   font-family: var(--font-body), serif;
   font-style: italic;
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: color-mix(in srgb, var(--ink) 66%, transparent);
   transition: color 400ms ease;
 }
 .write-again:hover {
-  color: var(--text-primary);
+  color: var(--ink);
+}
+
+/* ===========================================================================
+   THE JOURNAL — two parchment leaves with a page-turn.
+   Page 1 (the dream) is preserved and turns away to reveal page 2 (the
+   interpretation); you can always turn back. Reuses the --paper tokens.
+   =========================================================================== */
+.journal {
+  position: relative;
+  margin-top: 0.5rem;
+  perspective: 2400px;
+}
+
+/* shared parchment look — lit by the candle like the rest of the scene:
+   a warm catch where the flame is closest (top), a downward cast, and the
+   page falling into shadow toward the bottom and edges. */
+.parchment {
+  position: relative;
+  border-radius: 6px 8px 7px 9px;
+  background-color: var(--paper);
+  background-image:
+    /* the bright catch of candlelight nearest the flame (top) */
+    radial-gradient(125% 80% at 50% -16%, var(--paper-glow), transparent 52%),
+    /* directional cast warm at the top, sinking to shadow at the bottom */
+    linear-gradient(
+      to bottom,
+      var(--paper-cast) 0%,
+      transparent 34%,
+      transparent 60%,
+      var(--paper-shade) 100%
+    ),
+    /* ruling lines */
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(1.9em - 1px),
+      var(--paper-line) calc(1.9em - 1px),
+      var(--paper-line) 1.9em
+    );
+  background-position: center top, center, 0 1.6rem;
+  box-shadow: inset 0 0 90px -30px var(--paper-edge),
+    0 16px 40px -20px rgba(0, 0, 0, 0.75);
+  color: var(--ink);
+  padding: 1.8rem 1.75rem 2rem;
+}
+/* page content sits above the living-light layer below */
+.parchment > * {
+  position: relative;
+  z-index: 1;
+}
+/* a warm light cast on the paper that breathes and gutters WITH the flame.
+   z-index 0 keeps it under the text (blends with the paper, not the ink). */
+.parchment::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 78% at 50% -12%,
+    color-mix(in srgb, var(--glow-primary) 24%, transparent),
+    transparent 55%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0;
+}
+body[data-mode="nightfall"] .parchment::after {
+  opacity: 1;
+  animation: candleLife 8s ease-in-out infinite;
+}
+/* If a paper.png is present, it becomes the paper material; the candlelight
+   catch + cast stay layered above it (ruling lines drop — bring your own). */
+body[data-paper="photo"] .parchment {
+  background-image: radial-gradient(
+      125% 80% at 50% -16%,
+      var(--paper-glow),
+      transparent 52%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--paper-cast) 0%,
+      transparent 34%,
+      transparent 60%,
+      var(--paper-shade) 100%
+    ),
+    url("/paper.jpg");
+  background-size: auto, auto, cover;
+  background-position: center top, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+}
+
+/* compose: the dream leaf is the only page, in normal flow */
+.journal[data-stage="compose"] .leaf--dream {
+  position: relative;
+}
+.journal[data-stage="compose"] .leaf--dream .leaf__face {
+  position: relative;
+}
+.journal[data-stage="compose"] .leaf--dream .leaf__back {
+  display: none;
+}
+
+/* reading: the interpretation defines the height; the dream page overlays it
+   and turns away on its left edge to reveal it */
+.journal[data-stage="reading"] .leaf--reading {
+  position: relative;
+  z-index: 1;
+}
+.journal[data-stage="reading"] .leaf--dream {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1100ms cubic-bezier(0.62, 0, 0.3, 1);
+}
+.journal[data-stage="reading"] .leaf--dream .leaf__face,
+.journal[data-stage="reading"] .leaf--dream .leaf__back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.journal[data-stage="reading"] .leaf--dream .leaf__back {
+  transform: rotateY(180deg);
+}
+.journal[data-stage="reading"][data-turned="true"] .leaf--dream {
+  transform: rotateY(-172deg);
+}
+
+/* the dream page is a flex column (textarea + seal, or read-back + flip) */
+.leaf__face {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+/* the textarea blends into the leaf parchment — no double paper */
+.leaf__face .dream-input {
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+}
+.leaf__face .dream-input:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+.leaf__face .seal-button {
+  align-self: center;
+}
+
+/* the preserved dream, read back on the page */
+.dream-readback {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 1.16rem;
+  line-height: 1.9em;
+  color: var(--ink);
+}
+.leaf-hint {
+  margin: 0;
+  font-style: italic;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+/* turn-the-page affordances */
+.leaf-flip {
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--font-heading), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 68%, transparent);
+  transition: color 400ms ease, text-shadow 400ms ease;
+}
+.leaf-flip:hover {
+  color: var(--ink);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 50%, transparent);
+}
+
+.leaf-actions {
+  margin-top: 2.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+}
+.leaf-links {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+}
+.leaf-links .leaf-flip {
+  align-self: auto;
+}
+
+/* "Enter Dream Again" — a wax seal / ritual stamp, not a button */
+.dream-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.dream-seal__glyph {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 42% 36%,
+    color-mix(in srgb, var(--wax) 70%, #2a0c04),
+    var(--wax) 72%
+  );
+  color: color-mix(in srgb, var(--glow-primary) 72%, var(--text-primary));
+  font-size: 1.8rem;
+  line-height: 1;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow-primary) 28%, transparent),
+    inset 0 2px 7px rgba(0, 0, 0, 0.55), 0 6px 18px -6px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 500ms ease, transform 500ms ease;
+}
+.dream-seal:hover .dream-seal__glyph {
+  transform: scale(1.05) rotate(-3deg);
+  box-shadow: 0 0 28px -2px color-mix(in srgb, var(--glow-primary) 55%, transparent),
+    inset 0 2px 7px rgba(0, 0, 0, 0.55);
+}
+.dream-seal__label {
+  font-family: var(--font-heading), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 80%, transparent);
 }
 
 /* ===========================================================================
@@ -1199,11 +1652,36 @@ body[data-mode="daybreak"] .toggle-knob {
   transition: opacity 2600ms ease;
 }
 
-/* fainting: the head tilts back, the desk falls away and blurs */
+/* drifting under: NO camera tilt — a calm, hypnotic zoom + growing blur, the
+   parchment swelling to fill the view as consciousness fades to black */
 .viewport[data-phase="fainting"] .camera,
 .viewport[data-phase="dreamworld"] .camera {
-  transform: translateY(11vh) rotateX(22deg) scale(1.14);
-  filter: blur(7px) saturate(0.4) brightness(0.7);
+  transform: scale(1.5);
+  filter: blur(11px) saturate(0.65) brightness(0.82);
+}
+/* the parchment itself enlarges a little further than the scene */
+.viewport[data-phase="fainting"] .journal {
+  transform: scale(1.22);
+  transition: transform 3000ms ease;
+}
+/* the candle flames flicker harder as you go under */
+.viewport[data-phase="fainting"] .candle-halo {
+  animation-duration: 0.5s;
+}
+.viewport[data-phase="fainting"] .candle-photo,
+.viewport[data-phase="fainting"] .flame {
+  animation: candleFlare 0.45s ease-in-out infinite;
+}
+@keyframes candleFlare {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.04);
+  }
 }
 .viewport[data-phase="fainting"] .desk,
 .viewport[data-phase="fainting"] .page-glow,
@@ -1285,6 +1763,43 @@ body[data-mode="daybreak"] .toggle-knob {
   box-shadow: 0 0 26px -6px rgba(150, 170, 255, 0.45);
 }
 
+/* Drifting under: the dream's symbols glow and rise from the page as
+   particles, then dissolve as the veil closes to black. */
+.symbol-rise {
+  position: fixed;
+  inset: 0;
+  z-index: 38;
+  pointer-events: none;
+}
+.symbol-particle {
+  position: absolute;
+  bottom: 46%;
+  font-family: var(--font-heading), serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  color: var(--glow-primary);
+  text-shadow: 0 0 16px var(--glow-primary),
+    0 0 34px color-mix(in srgb, var(--glow-primary) 60%, transparent);
+  opacity: 0;
+  animation: symbolRise 3.2s ease-in forwards;
+}
+@keyframes symbolRise {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.9);
+    filter: blur(0);
+  }
+  30% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-240px) scale(1.18);
+    filter: blur(4px);
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Reduced motion — let the room be still. Faint becomes a plain crossfade.
    --------------------------------------------------------------------------- */
@@ -1293,14 +1808,33 @@ body[data-mode="daybreak"] .toggle-knob {
   .flame,
   .flame-core,
   .candle-halo,
+  .candle-photo,
+  .parchment::after,
+  .scene-flame,
+  .scene-hint,
   .grain,
   .smoke path,
   .smoke-sway,
   .reveal-line,
+  .symbol-particle,
   .page-glow--night,
   .cine-text,
   .cine-nib {
     animation: none !important;
+  }
+  .journal[data-turned="true"] .reveal-line {
+    animation: none !important;
+  }
+  /* keep the turn instant (still reveals the interpretation), no enlarge */
+  .leaf--dream {
+    transition: none !important;
+  }
+  .viewport[data-phase="fainting"] .journal {
+    transition: none !important;
+    transform: none !important;
+  }
+  .stage {
+    transition: none !important;
   }
   .grain {
     opacity: 0.04 !important;

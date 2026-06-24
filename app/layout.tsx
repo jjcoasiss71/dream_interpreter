@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, EB_Garamond } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  EB_Garamond,
+  IM_Fell_English_SC,
+} from "next/font/google";
 import "./globals.css";
+
+// Title: an 1800s small-caps revival of the historic Fell printing types.
+const title = IM_Fell_English_SC({
+  variable: "--font-title",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
 
 // Headings: thin, quiet, handwritten-adjacent.
 const heading = Cormorant_Garamond({
@@ -31,7 +43,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${heading.variable} ${body.variable}`}>
+    <html
+      lang="en"
+      className={`${title.variable} ${heading.variable} ${body.variable}`}
+    >
       {/* data-mode drives every adaptive value below. Nightfall is default. */}
       <body data-mode="nightfall">{children}</body>
     </html>

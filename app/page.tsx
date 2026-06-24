@@ -17,7 +17,8 @@ type Result = {
 type Mode = "nightfall" | "daybreak";
 // reality flow: writing → sending → result; dream flow: fainting → dreamworld → waking
 type Phase = "writing" | "sending" | "result" | "fainting" | "dreamworld" | "waking";
-type CineStage = "write" | "fold" | "seal" | "fly";
+// camera distance from the desk — the zoom system (DESK / PAPER / WRITING)
+type CameraView = "desk" | "paper" | "writing";
 
 // Break the interpretation into lines so each fades in on its own beat —
 // like a scroll slowly unrolled. Honors paragraph breaks, then sentences.
@@ -39,7 +40,12 @@ function prefersReducedMotion() {
 export default function Home() {
   const [mode, setMode] = useState<Mode>("nightfall");
   const [phase, setPhase] = useState<Phase>("writing");
-  const [cineStage, setCineStage] = useState<CineStage>("write");
+  // The journal turns its page to reveal the interpretation; the dream page
+  // stays behind it and can be turned back to.
+  const [pageTurned, setPageTurned] = useState(false);
+  // Camera zoom state and the settings popover. We open on the desk scene.
+  const [view, setView] = useState<CameraView>("desk");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   // If public/candle.png exists it replaces the CSS-drawn candle.
   const [candlePhotoOk, setCandlePhotoOk] = useState(false);
   const [dream, setDream] = useState("");
@@ -69,24 +75,28 @@ export default function Home() {
     img.src = "/candle.png";
   }, []);
 
+  // If public/paper.png exists, use it as the parchment texture (the CSS
+  // candlelight stays layered on top). Otherwise the CSS paper is the fallback.
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = () => {
+      document.body.dataset.paper = "photo";
+    };
+    img.src = "/paper.jpg";
+  }, []);
+
   async function seal() {
     if (dream.trim().length < 3 || phase === "sending") return;
     const reduced = prefersReducedMotion();
     setError("");
     setResult(null);
-    setSentText(dream);
-    setCineStage("write");
+    setPageTurned(false);
+    setView("paper"); // pull back from writing so the page-turn reads
+    setSentText(dream); // preserve the dream exactly as written
     setPhase("sending");
 
-    // Choreograph the write → fold → seal → fly stages (skipped if reduced).
-    const cinematicMs = reduced ? 350 : 3200;
-    if (!reduced) {
-      timers.current.push(setTimeout(() => setCineStage("fold"), 1300));
-      timers.current.push(setTimeout(() => setCineStage("seal"), 2300));
-      timers.current.push(setTimeout(() => setCineStage("fly"), 2700));
-    }
-
-    const minDelay = new Promise((r) => setTimeout(r, cinematicMs));
+    // A calm beat so the page-turn never feels instant, even on a fast reply.
+    const minDelay = new Promise((r) => setTimeout(r, reduced ? 200 : 900));
     try {
       const res = await fetch("/api/interpret", {
         method: "POST",
@@ -94,13 +104,17 @@ export default function Home() {
         body: JSON.stringify({ dream }),
       });
       const data = await res.json();
-      await minDelay; // let the letter finish sending before the reveal
+      await minDelay;
       if (!res.ok) {
-        setError(data.error ?? "The letter came back unopened.");
+        setError(data.error ?? "The page stayed blank — try again.");
         setPhase("writing");
       } else {
         setResult(data);
         setPhase("result");
+        // Let the interpretation page mount, then turn the journal to it.
+        timers.current.push(
+          setTimeout(() => setPageTurned(true), reduced ? 0 : 450)
+        );
       }
     } catch {
       await minDelay;
@@ -113,6 +127,8 @@ export default function Home() {
     clearTimers();
     setResult(null);
     setError("");
+    setPageTurned(false);
+    setDream("");
     setPhase("writing");
   }
 
@@ -133,26 +149,61 @@ export default function Home() {
 
   const lines = result ? toLines(result.interpretation) : [];
   const inDream = phase === "fainting" || phase === "dreamworld" || phase === "waking";
+  // "reading" once an interpretation exists: the dream page becomes the leaf
+  // that turns away to reveal it.
+  const journalStage = result ? "reading" : "compose";
+  const symbols = result?.matchedSymbols ?? [];
 
   return (
-    <div className="viewport" data-phase={phase}>
+    <div className="viewport" data-phase={phase} data-view={view}>
       {/* Scenery behind the camera: the desk, the candle's light, the chair. */}
       <div className="desk" aria-hidden="true" />
       <div className="page-glow page-glow--night" aria-hidden="true" />
       <div className="page-glow page-glow--day" aria-hidden="true" />
       <div className="backrest" aria-hidden="true" />
 
-      {/* The camera tilts back during the faint. */}
-      <div className="camera">
-        <main className="shell">
-          <header className="masthead">
-            <h1 className="title">Dream Interpreter</h1>
-            <p className="subtitle">
-              Write down a dream by candlelight, seal it, and read what it
-              wanted to say.
-            </p>
-          </header>
+      {/* DESK_VIEW backdrop: the fully-composed scene photo. A live flame glow
+         sits over the candle so it isn't frozen. Clicking leans in, crossfading
+         to the live, writable scene below. */}
+      <button
+        type="button"
+        className="scene-backdrop"
+        onClick={() => setView("paper")}
+        aria-label="Begin writing"
+      >
+        <span className="scene-flame" aria-hidden="true" />
+        <span className="scene-hint">write</span>
+      </button>
 
+      {/* UI layer — the header sits above the scene and never zooms. */}
+      <header className="app-header">
+        <span className="app-title">Dream Interpreter</span>
+        <div className="app-header__controls">
+          <button
+            type="button"
+            className="header-btn"
+            onClick={() => setView((v) => (v === "desk" ? "paper" : "desk"))}
+            aria-label={
+              view === "desk" ? "Begin writing" : "Sit back from the desk"
+            }
+          >
+            {view === "desk" ? "write" : "sit back"}
+          </button>
+          <button
+            type="button"
+            className="header-btn header-btn--icon"
+            onClick={() => setSettingsOpen((s) => !s)}
+            aria-label="Settings"
+            aria-expanded={settingsOpen}
+          >
+            ✦
+          </button>
+        </div>
+      </header>
+
+      {settingsOpen && (
+        <div className="settings-panel">
+          <p className="settings-panel__label">Hour</p>
           <div className="toggle-row">
             <button
               type="button"
@@ -181,10 +232,18 @@ export default function Home() {
               Daybreak
             </button>
           </div>
+        </div>
+      )}
 
-          {/* The candle — an antique brass chamberstick above the letter.
-             A real candle.png (if present) replaces the CSS candle; the
-             breathing/guttering halo stays behind it as the living light. */}
+      {/* The camera tilts back during the faint; the stage zooms between the
+         desk / paper / writing camera views. */}
+      <div className="camera">
+        <div className="stage">
+          <main className="shell">
+            <div className="scene-content">
+              {/* The candle — sits on the desk, behind the paper. A real
+                 candle.png (if present) replaces the CSS candle; the
+                 breathing/guttering halo stays behind it as the living light. */}
           <div className="accent-stage" aria-hidden="true">
             <div className="candle">
               <span className="candle-halo" />
@@ -218,102 +277,159 @@ export default function Home() {
             </div>
           </div>
 
-          {/* The letter */}
-          {phase === "writing" && (
-            <section className="composer">
-              <textarea
-                className="dream-input"
-                value={dream}
-                onChange={(e) => setDream(e.target.value)}
-                placeholder="The moon was too bright, and I was walking…"
-                rows={7}
-                autoFocus
-              />
-              <button
-                type="button"
-                className="seal-button"
-                onClick={seal}
-                disabled={dream.trim().length < 3}
-              >
-                Seal &amp; Reveal
-              </button>
-            </section>
-          )}
-
-          {/* The send cinematic */}
-          {phase === "sending" && (
-            <div className="cinematic" data-stage={cineStage} aria-hidden="true">
-              <div className="cine-stage">
-                <div className="cine-paper">
-                  <p className="cine-text">{sentText}</p>
-                  <span className="cine-nib" />
-                  <div className="cine-fold cine-fold--top" />
-                  <div className="cine-fold cine-fold--bottom" />
-                  <span className="cine-wax" />
-                </div>
-              </div>
-            </div>
-          )}
-
           {error && <p className="notice">{error}</p>}
 
-          {/* The interpretation */}
-          {phase === "result" && result && (
-            <section className="result-card">
-              <p className="interpretation">
-                {lines.map((line, i) => (
-                  <span
-                    key={`${i}-${line.slice(0, 12)}`}
-                    className="reveal-line"
-                    style={{ animationDelay: `${i * 0.3}s` }}
+          {/* The journal. Page 1 is the dream you wrote (preserved); page 2 is
+             the interpretation. Sealing turns the page to it — and you can
+             always turn back to the dream. */}
+          <div
+            className="journal"
+            data-stage={journalStage}
+            data-turned={pageTurned ? "true" : "false"}
+          >
+            {/* Page 2 — the interpretation, beneath, revealed as the page turns */}
+            {result && (
+              <article
+                className="leaf leaf--reading parchment"
+                aria-hidden={!pageTurned}
+              >
+                <p className="interpretation">
+                  {lines.map((line, i) => (
+                    <span
+                      key={`${i}-${line.slice(0, 12)}`}
+                      className="reveal-line"
+                      style={{ animationDelay: `${0.5 + i * 0.3}s` }}
+                    >
+                      {line}
+                    </span>
+                  ))}
+                </p>
+
+                {(result.matchedSymbols.length > 0 ||
+                  result.frameworksUsed.length > 0) && (
+                  <>
+                    <hr className="rule" />
+                    <div className="result-meta">
+                      {result.matchedSymbols.length > 0 && (
+                        <p>
+                          <span className="meta-key">Symbols detected:</span>{" "}
+                          {result.matchedSymbols.join(", ")}
+                        </p>
+                      )}
+                      {result.frameworksUsed.length > 0 && (
+                        <p>
+                          <span className="meta-key">Grounded in:</span>{" "}
+                          {result.frameworksUsed.join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                <p className="disclaimer">
+                  Interpretation is subjective and for reflection only — not a
+                  scientific or medical claim.
+                </p>
+
+                <div className="leaf-actions">
+                  <button
+                    type="button"
+                    className="dream-seal"
+                    onClick={enterDream}
+                    aria-label="Enter the dream again"
                   >
-                    {line}
-                  </span>
-                ))}
-              </p>
-
-              {(result.matchedSymbols.length > 0 ||
-                result.frameworksUsed.length > 0) && (
-                <>
-                  <hr className="rule" />
-                  <div className="result-meta">
-                    {result.matchedSymbols.length > 0 && (
-                      <p>
-                        <span className="meta-key">Symbols detected:</span>{" "}
-                        {result.matchedSymbols.join(", ")}
-                      </p>
-                    )}
-                    {result.frameworksUsed.length > 0 && (
-                      <p>
-                        <span className="meta-key">Grounded in:</span>{" "}
-                        {result.frameworksUsed.join(", ")}
-                      </p>
-                    )}
+                    <span className="dream-seal__glyph" aria-hidden="true">
+                      ☾
+                    </span>
+                    <span className="dream-seal__label">Enter Dream Again</span>
+                  </button>
+                  <div className="leaf-links">
+                    <button
+                      type="button"
+                      className="leaf-flip"
+                      onClick={() => setPageTurned(false)}
+                    >
+                      ‹ the dream
+                    </button>
+                    <button
+                      type="button"
+                      className="write-again"
+                      onClick={writeAgain}
+                    >
+                      write another dream
+                    </button>
                   </div>
-                </>
+                </div>
+              </article>
+            )}
+
+            {/* Page 1 — the dream; editable until sealed, then kept & turnable */}
+            <article className="leaf leaf--dream">
+              <span className="leaf__back parchment" aria-hidden="true" />
+              {phase === "writing" ? (
+                <div className="leaf__face parchment">
+                  <textarea
+                    className="dream-input"
+                    value={dream}
+                    onChange={(e) => setDream(e.target.value)}
+                    placeholder="The moon was too bright, and I was walking…"
+                    rows={7}
+                    onFocus={() => setView("writing")}
+                  />
+                  <button
+                    type="button"
+                    className="seal-button"
+                    onClick={seal}
+                    disabled={dream.trim().length < 3}
+                  >
+                    Seal &amp; Reveal
+                  </button>
+                </div>
+              ) : (
+                <div className="leaf__face parchment">
+                  <p className="dream-readback">{sentText}</p>
+                  {phase === "sending" && (
+                    <p className="leaf-hint">the ink is drying…</p>
+                  )}
+                  {phase === "result" && (
+                    <button
+                      type="button"
+                      className="leaf-flip leaf-flip--forward"
+                      onClick={() => setPageTurned(true)}
+                    >
+                      read the interpretation ›
+                    </button>
+                  )}
+                </div>
               )}
-
-              <p className="disclaimer">
-                Interpretation is subjective and for reflection only — not a
-                scientific or medical claim.
-              </p>
-
-              <div className="after">
-                <button type="button" className="enter-dream" onClick={enterDream}>
-                  Step inside the dream
-                </button>
-                <button type="button" className="write-again" onClick={writeAgain}>
-                  write another letter
-                </button>
-              </div>
-            </section>
-          )}
-        </main>
+            </article>
+            </div>
+            </div>
+          </main>
+        </div>
       </div>
 
       {/* Atmosphere: the dark room pressing in, and a faint film grain. */}
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
+
+      {/* Drifting under: the dream's symbols glow and rise from the page. */}
+      {phase === "fainting" && symbols.length > 0 && (
+        <div className="symbol-rise" aria-hidden="true">
+          {symbols.slice(0, 6).map((symbol, i, arr) => (
+            <span
+              key={`${symbol}-${i}`}
+              className="symbol-particle"
+              style={{
+                left: `${26 + i * (48 / Math.max(arr.length - 1, 1))}%`,
+                animationDelay: `${0.2 + i * 0.34}s`,
+              }}
+            >
+              {symbol.toLowerCase()}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Consciousness fading */}
       <div className="faint-veil" aria-hidden="true" />
