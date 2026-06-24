@@ -162,7 +162,6 @@ body {
 .viewport {
   position: relative;
   min-height: 100vh;
-  perspective: 1400px;
   overflow-x: clip;
 }
 
@@ -257,10 +256,10 @@ body {
   transform: scale(0.74) translateY(-1.5%);
 }
 .viewport[data-view="paper"] .stage {
-  transform: scale(0.85);
+  transform: scale(0.7);
 }
 .viewport[data-view="writing"] .stage {
-  transform: scale(0.98) translateY(1%);
+  transform: scale(0.78) translateY(1%);
 }
 .viewport[data-view="desk"] .desk {
   transform: scale(1);
@@ -283,7 +282,8 @@ body {
   margin: 0;
   padding: 0;
   border: 0;
-  background: #000 url("/scene.jpg") center / cover no-repeat;
+  /* the scene photo always fills the screen — crops as needed, never bars */
+  background: #0a0806 url("/scene.jpg") center / cover no-repeat;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
@@ -294,47 +294,32 @@ body {
   opacity: 1;
   pointer-events: auto;
 }
-/* a soft, breathing flame glow laid over the candle in the photo so it lives */
-.scene-flame {
-  position: absolute;
-  left: 47%;
-  top: 16%;
-  width: 86px;
-  height: 110px;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  background: radial-gradient(
-    circle at 50% 42%,
-    color-mix(in srgb, var(--flame-mid) 60%, transparent) 0%,
-    color-mix(in srgb, var(--flame-edge) 26%, transparent) 36%,
-    transparent 70%
-  );
-  filter: blur(5px);
-  mix-blend-mode: screen;
-  animation: flicker 2.3s ease-in-out infinite;
-}
 /* gentle "click to enter" hint, low in the frame */
 .scene-hint {
   position: absolute;
   left: 50%;
-  bottom: 7%;
+  bottom: 8%;
+  z-index: 2;
   transform: translateX(-50%);
   font-family: var(--font-heading), serif;
-  font-size: 0.78rem;
-  letter-spacing: 0.34em;
+  font-weight: 500;
+  font-size: 1.45rem;
+  letter-spacing: 0.46em;
+  text-indent: 0.46em; /* offset the trailing tracking so it reads centered */
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--text-primary) 70%, transparent);
-  text-shadow: 0 0 18px color-mix(in srgb, var(--glow-primary) 45%, transparent);
+  color: color-mix(in srgb, var(--text-primary) 98%, transparent);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--glow-primary) 70%, transparent),
+    0 0 38px color-mix(in srgb, var(--glow-primary) 40%, transparent);
   pointer-events: none;
   animation: hintPulse 3.4s ease-in-out infinite;
 }
 @keyframes hintPulse {
   0%,
   100% {
-    opacity: 0.45;
+    opacity: 0.72;
   }
   50% {
-    opacity: 0.9;
+    opacity: 1;
   }
 }
 
@@ -344,7 +329,7 @@ body {
 .app-header {
   position: fixed;
   inset: 0 0 auto 0;
-  height: 132px;
+  height: 158px;
   z-index: 36;
   display: flex;
   align-items: flex-start;
@@ -359,12 +344,12 @@ body {
 .app-title {
   position: absolute;
   left: 50%;
-  top: 3rem;
+  top: 4.8rem;
   transform: translateX(-50%);
   font-family: var(--font-title), var(--font-heading), serif;
   font-weight: 400;
-  letter-spacing: 0.12em;
-  font-size: clamp(2.5rem, 6.4vw, 3.8rem);
+  letter-spacing: 0.1em;
+  font-size: clamp(2.3rem, 6vw, 4.5rem);
   line-height: 1;
   white-space: nowrap;
   color: color-mix(in srgb, var(--text-primary) 95%, transparent);
@@ -428,18 +413,31 @@ body {
 .scene-content {
   position: relative;
 }
+/* the overlay candle + its glow are gone from the live scene */
 .scene-content .accent-stage {
-  position: absolute;
-  left: 50%;
-  top: -8px;
-  transform: translateX(-50%);
-  margin: 0;
-  z-index: 1;
+  display: none;
 }
-.scene-content .journal {
+/* A single sheet of paper, centered in front of the candle — sized to roughly
+   match the parchment in the scene photo, with square (un-rounded) corners. */
+.scene-content .paper-sheet {
   position: relative;
   z-index: 2;
-  margin-top: 104px;
+  width: min(96%, 680px);
+  min-height: 800px;
+  margin: 40px auto 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sheet-face {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.sheet-face .dream-input {
+  flex: 1;
+  resize: none;
 }
 
 /* ---------------------------------------------------------------------------
@@ -528,7 +526,7 @@ body[data-mode="daybreak"] .page-glow--night {
   z-index: 2;
   max-width: var(--shell-width);
   margin: 0 auto;
-  padding: 150px 1.75rem 5rem;
+  padding: 182px 1.75rem 5rem;
   opacity: 0;
   /* page-in, then a slow idle breath as if you're hunched over the desk */
   animation: pageIn 1.5s ease forwards,
@@ -973,7 +971,7 @@ body[data-mode="daybreak"] .toggle-knob {
   border: 1px solid transparent;
   color: var(--ink);
   font-family: var(--font-body), serif;
-  font-size: 1.18rem;
+  font-size: 1.5rem;
   line-height: 1.9em;
   outline: none;
   /* Parchment: candlelight catching the top, faint ruling lines below. */
@@ -997,7 +995,7 @@ body[data-mode="daybreak"] .toggle-knob {
   box-shadow: inset 0 0 90px -30px var(--paper-edge),
     0 16px 40px -20px rgba(0, 0, 0, 0.75);
   /* STEP 4 — fountain pen in hand + ink caret. */
-  cursor: url("/pen-cursor.svg") 5 25, text;
+  cursor: url("/quill-cursor.svg") 8 33, text;
   caret-color: var(--ink);
   transition: border-color 500ms ease, box-shadow 500ms ease,
     background-color 800ms ease-in-out, color 800ms ease-in-out;
@@ -1252,7 +1250,7 @@ body[data-mode="daybreak"] .toggle-knob {
 .interpretation {
   margin: 0;
   color: var(--ink);
-  font-size: 1.16rem;
+  font-size: 1.45rem;
   line-height: 1.95;
 }
 .reveal-line {
@@ -1261,8 +1259,8 @@ body[data-mode="daybreak"] .toggle-knob {
   opacity: 0;
   transform: translateY(8px);
 }
-/* lines unroll only once the journal has turned to the interpretation */
-.journal[data-turned="true"] .reveal-line {
+/* lines unroll as the interpretation settles onto the sheet */
+.sheet-result .reveal-line {
   animation: lineIn 1.1s ease forwards;
 }
 .reveal-line:last-child {
@@ -1468,35 +1466,58 @@ body[data-paper="photo"] .parchment {
   gap: 1.3rem;
 }
 
-/* the textarea blends into the leaf parchment — no double paper */
-.leaf__face .dream-input {
+/* the textarea blends into the paper — no double paper */
+.sheet-face .dream-input {
   background: transparent;
   background-image: none;
   box-shadow: none;
   border-radius: 0;
   padding: 0;
 }
-.leaf__face .dream-input:focus {
+.sheet-face .dream-input:focus {
   box-shadow: none;
   border-color: transparent;
 }
-.leaf__face .seal-button {
+.sheet-face .seal-button {
   align-self: center;
 }
 
-/* the preserved dream, read back on the page */
-.dream-readback {
+/* the written dream, glowing then burning away on the page */
+.dream-vanishing {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 1.16rem;
+  font-size: 1.5rem;
   line-height: 1.9em;
   color: var(--ink);
+  -webkit-text-stroke: 0.6px transparent;
+  /* the ink words become glowing outlines of light, hold, then dissolve */
+  animation: dreamGlow 0.9s ease forwards, dreamErase 0.9s ease 3s forwards;
 }
-.leaf-hint {
-  margin: 0;
-  font-style: italic;
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
+@keyframes dreamGlow {
+  0% {
+    color: var(--ink);
+    -webkit-text-stroke-color: transparent;
+    text-shadow: none;
+  }
+  100% {
+    /* hollow letters: only the luminous outline remains */
+    color: transparent;
+    -webkit-text-stroke-color: #ffe6a0;
+    text-shadow: 0 0 4px #fff6da, 0 0 12px #ffe08a,
+      0 0 28px rgba(255, 200, 90, 0.8), 0 0 60px rgba(255, 180, 60, 0.45);
+  }
+}
+@keyframes dreamErase {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(-10px);
+  }
 }
 
 /* turn-the-page affordances */
@@ -1817,12 +1838,13 @@ body[data-paper="photo"] .parchment {
   .smoke-sway,
   .reveal-line,
   .symbol-particle,
+  .dream-vanishing,
   .page-glow--night,
   .cine-text,
   .cine-nib {
     animation: none !important;
   }
-  .journal[data-turned="true"] .reveal-line {
+  .sheet-result .reveal-line {
     animation: none !important;
   }
   /* keep the turn instant (still reveals the interpretation), no enlarge */

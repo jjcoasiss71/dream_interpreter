@@ -40,9 +40,6 @@ function prefersReducedMotion() {
 export default function Home() {
   const [mode, setMode] = useState<Mode>("nightfall");
   const [phase, setPhase] = useState<Phase>("writing");
-  // The journal turns its page to reveal the interpretation; the dream page
-  // stays behind it and can be turned back to.
-  const [pageTurned, setPageTurned] = useState(false);
   // Camera zoom state and the settings popover. We open on the desk scene.
   const [view, setView] = useState<CameraView>("desk");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -90,13 +87,12 @@ export default function Home() {
     const reduced = prefersReducedMotion();
     setError("");
     setResult(null);
-    setPageTurned(false);
-    setView("paper"); // pull back from writing so the page-turn reads
-    setSentText(dream); // preserve the dream exactly as written
+    setView("paper"); // pull back so the whole sheet is in view
+    setSentText(dream); // the words that will glow and burn away
     setPhase("sending");
 
-    // A calm beat so the page-turn never feels instant, even on a fast reply.
-    const minDelay = new Promise((r) => setTimeout(r, reduced ? 200 : 900));
+    // Let the written dream glow (~3s) and erase (~0.8s) before the reveal.
+    const minDelay = new Promise((r) => setTimeout(r, reduced ? 200 : 4000));
     try {
       const res = await fetch("/api/interpret", {
         method: "POST",
@@ -111,10 +107,6 @@ export default function Home() {
       } else {
         setResult(data);
         setPhase("result");
-        // Let the interpretation page mount, then turn the journal to it.
-        timers.current.push(
-          setTimeout(() => setPageTurned(true), reduced ? 0 : 450)
-        );
       }
     } catch {
       await minDelay;
@@ -127,7 +119,6 @@ export default function Home() {
     clearTimers();
     setResult(null);
     setError("");
-    setPageTurned(false);
     setDream("");
     setPhase("writing");
   }
@@ -149,9 +140,6 @@ export default function Home() {
 
   const lines = result ? toLines(result.interpretation) : [];
   const inDream = phase === "fainting" || phase === "dreamworld" || phase === "waking";
-  // "reading" once an interpretation exists: the dream page becomes the leaf
-  // that turns away to reveal it.
-  const journalStage = result ? "reading" : "compose";
   const symbols = result?.matchedSymbols ?? [];
 
   return (
@@ -171,7 +159,6 @@ export default function Home() {
         onClick={() => setView("paper")}
         aria-label="Begin writing"
       >
-        <span className="scene-flame" aria-hidden="true" />
         <span className="scene-hint">write</span>
       </button>
 
@@ -277,28 +264,46 @@ export default function Home() {
             </div>
           </div>
 
-          {error && <p className="notice">{error}</p>}
+          {/* A single sheet of paper. You write your dream on it; on sealing,
+             the words glow, burn away, and the interpretation takes their place
+             on the very same page. */}
+          <div className="paper-sheet parchment">
+            {phase === "writing" && (
+              <div className="sheet-face">
+                {error && <p className="notice">{error}</p>}
+                <textarea
+                  className="dream-input"
+                  value={dream}
+                  onChange={(e) => setDream(e.target.value)}
+                  placeholder="The moon was too bright, and I was walking…"
+                  rows={9}
+                  onFocus={() => setView("writing")}
+                />
+                <button
+                  type="button"
+                  className="seal-button"
+                  onClick={seal}
+                  disabled={dream.trim().length < 3}
+                >
+                  Seal &amp; Reveal
+                </button>
+              </div>
+            )}
 
-          {/* The journal. Page 1 is the dream you wrote (preserved); page 2 is
-             the interpretation. Sealing turns the page to it — and you can
-             always turn back to the dream. */}
-          <div
-            className="journal"
-            data-stage={journalStage}
-            data-turned={pageTurned ? "true" : "false"}
-          >
-            {/* Page 2 — the interpretation, beneath, revealed as the page turns */}
-            {result && (
-              <article
-                className="leaf leaf--reading parchment"
-                aria-hidden={!pageTurned}
-              >
+            {/* the written dream glows, then erases */}
+            {phase === "sending" && (
+              <p className="dream-vanishing">{sentText}</p>
+            )}
+
+            {/* the interpretation appears in its place on the same sheet */}
+            {phase === "result" && result && (
+              <div className="sheet-face sheet-result">
                 <p className="interpretation">
                   {lines.map((line, i) => (
                     <span
                       key={`${i}-${line.slice(0, 12)}`}
                       className="reveal-line"
-                      style={{ animationDelay: `${0.5 + i * 0.3}s` }}
+                      style={{ animationDelay: `${i * 0.3}s` }}
                     >
                       {line}
                     </span>
@@ -343,67 +348,17 @@ export default function Home() {
                     </span>
                     <span className="dream-seal__label">Enter Dream Again</span>
                   </button>
-                  <div className="leaf-links">
-                    <button
-                      type="button"
-                      className="leaf-flip"
-                      onClick={() => setPageTurned(false)}
-                    >
-                      ‹ the dream
-                    </button>
-                    <button
-                      type="button"
-                      className="write-again"
-                      onClick={writeAgain}
-                    >
-                      write another dream
-                    </button>
-                  </div>
-                </div>
-              </article>
-            )}
-
-            {/* Page 1 — the dream; editable until sealed, then kept & turnable */}
-            <article className="leaf leaf--dream">
-              <span className="leaf__back parchment" aria-hidden="true" />
-              {phase === "writing" ? (
-                <div className="leaf__face parchment">
-                  <textarea
-                    className="dream-input"
-                    value={dream}
-                    onChange={(e) => setDream(e.target.value)}
-                    placeholder="The moon was too bright, and I was walking…"
-                    rows={7}
-                    onFocus={() => setView("writing")}
-                  />
                   <button
                     type="button"
-                    className="seal-button"
-                    onClick={seal}
-                    disabled={dream.trim().length < 3}
+                    className="write-again"
+                    onClick={writeAgain}
                   >
-                    Seal &amp; Reveal
+                    write another dream
                   </button>
                 </div>
-              ) : (
-                <div className="leaf__face parchment">
-                  <p className="dream-readback">{sentText}</p>
-                  {phase === "sending" && (
-                    <p className="leaf-hint">the ink is drying…</p>
-                  )}
-                  {phase === "result" && (
-                    <button
-                      type="button"
-                      className="leaf-flip leaf-flip--forward"
-                      onClick={() => setPageTurned(true)}
-                    >
-                      read the interpretation ›
-                    </button>
-                  )}
-                </div>
-              )}
-            </article>
-            </div>
+              </div>
+            )}
+          </div>
             </div>
           </main>
         </div>
