@@ -24,13 +24,13 @@ const KEY = "dream-journal";
 const PREF_KEY = "dream-memory-enabled";
 const MAX_ENTRIES = 50;
 
-/** Whether the dreamer has opted in to being remembered (default: off). */
+/** Whether dreams are remembered (default: on; off only if explicitly set). */
 export function loadMemoryEnabled(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === "undefined") return true;
   try {
-    return window.localStorage.getItem(PREF_KEY) === "true";
+    return window.localStorage.getItem(PREF_KEY) !== "false";
   } catch {
-    return false;
+    return true;
   }
 }
 

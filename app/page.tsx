@@ -71,7 +71,7 @@ export default function Home() {
   const [error, setError] = useState("");
   // The dream journal — kept only in this browser (lib/journal.ts).
   const [journal, setJournal] = useState<JournalEntry[]>([]);
-  const [memoryOn, setMemoryOn] = useState(false); // opt-in, off by default
+  const [memoryOn, setMemoryOn] = useState(true); // on by default; can opt out
   const [journalOpen, setJournalOpen] = useState(false);
   const [journalViewMode, setJournalViewMode] = useState<JournalView>("full");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
