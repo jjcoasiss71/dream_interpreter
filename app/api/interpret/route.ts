@@ -20,9 +20,42 @@ import {
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "llama-3.3-70b-versatile"; // a free, capable Groq model
 
+// The client may send a small summary of the dreamer's on-device history so
+// the interpretation can notice recurring patterns. It is never stored here.
+type ClientHistory = {
+  recurringSymbols?: { label: string; count: number }[];
+  recentDreams?: { dreamText: string; createdAt: number }[];
+};
+
+function buildHistoryText(history: unknown): string {
+  if (!history || typeof history !== "object") return "";
+  const h = history as ClientHistory;
+  const parts: string[] = [];
+
+  if (Array.isArray(h.recurringSymbols) && h.recurringSymbols.length > 0) {
+    const top = h.recurringSymbols
+      .filter((s) => s && typeof s.label === "string")
+      .slice(0, 8)
+      .map((s) => `${s.label} (${s.count}×)`)
+      .join(", ");
+    if (top) parts.push(`Symbols that recur across their past dreams: ${top}.`);
+  }
+
+  if (Array.isArray(h.recentDreams) && h.recentDreams.length > 0) {
+    const recent = h.recentDreams
+      .filter((d) => d && typeof d.dreamText === "string")
+      .slice(0, 3)
+      .map((d, i) => `  ${i + 1}. ${d.dreamText.slice(0, 320)}`)
+      .join("\n");
+    if (recent) parts.push(`A few of their recent dreams:\n${recent}`);
+  }
+
+  return parts.join("\n\n");
+}
+
 export async function POST(request: Request) {
   try {
-    const { dream } = await request.json();
+    const { dream, history } = await request.json();
 
     // Basic validation
     if (!dream || typeof dream !== "string" || dream.trim().length < 3) {
@@ -64,14 +97,21 @@ export async function POST(request: Request) {
     }
 
     // 3. Ask Groq to phrase the interpretation, constrained to our sources.
+    const historyText = buildHistoryText(history);
+
     const systemPrompt = `You are a careful, empathetic dream-interpretation assistant.
 Rules:
 - Explain the dream ONLY using the provided sourced perspectives below.
 - Do NOT invent symbol meanings or cite anything not provided.
 - Attribute ideas to their framework (e.g. "In Jungian theory...").
 - Never claim certainty; dream interpretation is subjective.
+- If the dreamer's history shows a genuinely recurring theme or symbol, you may gently note the pattern — but never force a connection or invent one.
 - Be warm and concise. End with one gentle, reflective question.
-
+${
+  historyText
+    ? `\nThe dreamer's private dream history (use it only to notice real recurring themes and make the reading more personal):\n${historyText}\n`
+    : ""
+}
 Sourced perspectives you may use:
 ${groundingText}`;
 

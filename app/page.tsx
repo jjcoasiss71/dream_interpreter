@@ -7,6 +7,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  loadJournal,
+  saveEntry,
+  clearJournal,
+  buildHistoryContext,
+  loadMemoryEnabled,
+  setMemoryEnabled,
+  loadJournalView,
+  saveJournalView,
+  type JournalEntry,
+  type JournalView,
+} from "@/lib/journal";
+
+const dateFmt = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 
 type Result = {
   interpretation: string;
@@ -38,7 +56,9 @@ function prefersReducedMotion() {
 }
 
 export default function Home() {
-  const [mode, setMode] = useState<Mode>("nightfall");
+  // Daybreak mode is kept in the code (tokens/styles) but its toggle is hidden
+  // for now, so the mode stays on the default.
+  const [mode] = useState<Mode>("nightfall");
   const [phase, setPhase] = useState<Phase>("writing");
   // Camera zoom state and the settings popover. We open on the desk scene.
   const [view, setView] = useState<CameraView>("desk");
@@ -49,6 +69,16 @@ export default function Home() {
   const [sentText, setSentText] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
+  // The dream journal — kept only in this browser (lib/journal.ts).
+  const [journal, setJournal] = useState<JournalEntry[]>([]);
+  const [memoryOn, setMemoryOn] = useState(false); // opt-in, off by default
+  const [journalOpen, setJournalOpen] = useState(false);
+  const [journalViewMode, setJournalViewMode] = useState<JournalView>("full");
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  // The "ultimate interpretation" across the whole journal.
+  const [ultimate, setUltimate] = useState<string | null>(null);
+  const [ultimateLoading, setUltimateLoading] = useState(false);
+  const [ultimateError, setUltimateError] = useState("");
 
   // Hold timer ids so we can clear them if the component unmounts mid-sequence.
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -82,6 +112,64 @@ export default function Home() {
     img.src = "/paper.jpg";
   }, []);
 
+  // Load the on-device dream journal + preference once, in the browser.
+  // (localStorage isn't available during SSR, so this happens after mount.)
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setJournal(loadJournal());
+    setMemoryOn(loadMemoryEnabled());
+    setJournalViewMode(loadJournalView());
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
+  function chooseJournalView(mode: JournalView) {
+    setJournalViewMode(mode);
+    saveJournalView(mode);
+  }
+
+  function toggleMemory() {
+    setMemoryOn((on) => {
+      const next = !on;
+      setMemoryEnabled(next);
+      return next;
+    });
+  }
+
+  function forgetAll() {
+    clearJournal();
+    setJournal([]);
+    setExpanded({});
+    setUltimate(null);
+    setUltimateError("");
+  }
+
+  function toggleEntry(id: string) {
+    setExpanded((e) => ({ ...e, [id]: !e[id] }));
+  }
+
+  async function readWholeJournal() {
+    if (ultimateLoading || journal.length < 2) return;
+    setUltimateError("");
+    setUltimate(null);
+    setUltimateLoading(true);
+    try {
+      const res = await fetch("/api/journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dreams: journal.map((e) => ({ dreamText: e.dreamText })),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) setUltimateError(data.error ?? "Could not read the journal.");
+      else setUltimate(data.reading);
+    } catch {
+      setUltimateError("Could not reach the interpreter.");
+    } finally {
+      setUltimateLoading(false);
+    }
+  }
+
   async function seal() {
     if (dream.trim().length < 3 || phase === "sending") return;
     const reduced = prefersReducedMotion();
@@ -91,13 +179,17 @@ export default function Home() {
     setSentText(dream); // the words that will glow and burn away
     setPhase("sending");
 
+    // Only when the dreamer has opted in: a compact summary of past dreams so
+    // the reading can notice patterns.
+    const history = memoryOn ? buildHistoryContext(journal) : undefined;
+
     // Let the written dream glow (~3s) and erase (~0.8s) before the reveal.
     const minDelay = new Promise((r) => setTimeout(r, reduced ? 200 : 4000));
     try {
       const res = await fetch("/api/interpret", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dream }),
+        body: JSON.stringify(memoryOn ? { dream, history } : { dream }),
       });
       const data = await res.json();
       await minDelay;
@@ -107,6 +199,22 @@ export default function Home() {
       } else {
         setResult(data);
         setPhase("result");
+        // Remember this dream on the device for future, deeper readings.
+        if (memoryOn) {
+          setJournal(
+            saveEntry({
+              id:
+                typeof crypto !== "undefined" && crypto.randomUUID
+                  ? crypto.randomUUID()
+                  : String(Date.now()),
+              dreamText: dream,
+              interpretation: data.interpretation,
+              matchedSymbols: data.matchedSymbols ?? [],
+              frameworksUsed: data.frameworksUsed ?? [],
+              createdAt: Date.now(),
+            })
+          );
+        }
       }
     } catch {
       await minDelay;
@@ -164,17 +272,21 @@ export default function Home() {
 
       {/* UI layer — the header sits above the scene and never zooms. */}
       <header className="app-header">
-        <span className="app-title">Dream Interpreter</span>
+        <button
+          type="button"
+          className="app-title"
+          onClick={() => setView("desk")}
+          aria-label="Sit back to the desk"
+        >
+          Dream Interpreter
+        </button>
         <div className="app-header__controls">
           <button
             type="button"
             className="header-btn"
-            onClick={() => setView((v) => (v === "desk" ? "paper" : "desk"))}
-            aria-label={
-              view === "desk" ? "Begin writing" : "Sit back from the desk"
-            }
+            onClick={() => setJournalOpen(true)}
           >
-            {view === "desk" ? "write" : "sit back"}
+            Journal
           </button>
           <button
             type="button"
@@ -190,35 +302,33 @@ export default function Home() {
 
       {settingsOpen && (
         <div className="settings-panel">
-          <p className="settings-panel__label">Hour</p>
-          <div className="toggle-row">
+          <p className="settings-panel__label">Dream journal</p>
+          <div className="mem-row">
+            <span className="mem-label">Remember my dreams</span>
             <button
               type="button"
-              className="toggle-label toggle-label--night"
-              onClick={() => setMode("nightfall")}
-            >
-              Nightfall
-            </button>
-            <button
-              type="button"
-              className="toggle"
+              className="mem-switch"
               role="switch"
-              aria-checked={mode === "daybreak"}
-              aria-label="Toggle between Nightfall and Daybreak"
-              onClick={() =>
-                setMode((m) => (m === "nightfall" ? "daybreak" : "nightfall"))
-              }
+              aria-checked={memoryOn}
+              data-on={memoryOn}
+              aria-label="Remember my dreams on this device"
+              onClick={toggleMemory}
             >
-              <span className="toggle-knob" />
-            </button>
-            <button
-              type="button"
-              className="toggle-label toggle-label--day"
-              onClick={() => setMode("daybreak")}
-            >
-              Daybreak
+              <span className="mem-knob" />
             </button>
           </div>
+          <p className="settings-journal__count">
+            {journal.length === 0
+              ? "kept only on this device · nothing yet"
+              : `${journal.length} dream${
+                  journal.length === 1 ? "" : "s"
+                } kept on this device`}
+          </p>
+          {journal.length > 0 && (
+            <button type="button" className="forget-all" onClick={forgetAll}>
+              forget all
+            </button>
+          )}
         </div>
       )}
 
@@ -400,6 +510,149 @@ export default function Home() {
           <button type="button" className="wake" onClick={wakeUp}>
             Wake up
           </button>
+        </div>
+      )}
+
+      {/* The dream journal — reread your past dreams (kept on this device). */}
+      {journalOpen && (
+        <div className="journal-view" role="dialog" aria-modal="true">
+          <div className="journal-view__inner">
+            <div className="journal-view__head">
+              <h2 className="journal-view__title">Your Dream Journal</h2>
+              <button
+                type="button"
+                className="journal-view__close"
+                onClick={() => setJournalOpen(false)}
+                aria-label="Close journal"
+              >
+                ×
+              </button>
+            </div>
+            {journal.length === 0 ? (
+              <p className="journal-view__empty">No dreams remembered yet.</p>
+            ) : (
+              <>
+                <div className="journal-modes">
+                  <button
+                    type="button"
+                    className="journal-mode"
+                    data-active={journalViewMode === "full"}
+                    onClick={() => chooseJournalView("full")}
+                  >
+                    Full
+                  </button>
+                  <button
+                    type="button"
+                    className="journal-mode"
+                    data-active={journalViewMode === "compact"}
+                    onClick={() => chooseJournalView("compact")}
+                  >
+                    Compact
+                  </button>
+                </div>
+
+                <div className="journal-view__list">
+                  {/* The ultimate interpretation across the whole journal */}
+                  {journal.length >= 2 && (
+                    <div className="journal-ultimate">
+                      {ultimate ? (
+                        <>
+                          <p className="journal-ultimate__label">
+                            Across all your dreams
+                          </p>
+                          <p className="journal-ultimate__text">{ultimate}</p>
+                          <button
+                            type="button"
+                            className="journal-ultimate__again"
+                            onClick={readWholeJournal}
+                            disabled={ultimateLoading}
+                          >
+                            {ultimateLoading ? "reading…" : "read again"}
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          className="journal-ultimate__btn"
+                          onClick={readWholeJournal}
+                          disabled={ultimateLoading}
+                        >
+                          {ultimateLoading
+                            ? "reading the whole journal…"
+                            : "✦ Interpret all my dreams"}
+                        </button>
+                      )}
+                      {ultimateError && (
+                        <p className="journal-ultimate__error">{ultimateError}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {journal.map((entry) =>
+                    journalViewMode === "full" ? (
+                      <article
+                        className="journal-entry journal-entry--full"
+                        key={entry.id}
+                      >
+                        <p className="journal-entry__date">
+                          {dateFmt.format(entry.createdAt)}
+                        </p>
+                        <p className="journal-entry__dream">{entry.dreamText}</p>
+                        <p className="journal-entry__reading">
+                          {entry.interpretation}
+                        </p>
+                        {entry.matchedSymbols.length > 0 && (
+                          <p className="journal-entry__symbols">
+                            {entry.matchedSymbols.join(" · ")}
+                          </p>
+                        )}
+                      </article>
+                    ) : (
+                      <article
+                        className="journal-entry"
+                        data-open={expanded[entry.id] ? "true" : "false"}
+                        key={entry.id}
+                      >
+                        <button
+                          type="button"
+                          className="journal-entry__head"
+                          aria-expanded={!!expanded[entry.id]}
+                          onClick={() => toggleEntry(entry.id)}
+                        >
+                          <span className="journal-entry__meta">
+                            <span className="journal-entry__date">
+                              {dateFmt.format(entry.createdAt)}
+                            </span>
+                            <span
+                              className="journal-entry__chevron"
+                              aria-hidden="true"
+                            >
+                              ›
+                            </span>
+                          </span>
+                          <span className="journal-entry__dream">
+                            {entry.dreamText}
+                          </span>
+                        </button>
+                        {expanded[entry.id] && (
+                          <div className="journal-entry__body">
+                            <p className="journal-entry__reading">
+                              {entry.interpretation}
+                            </p>
+                            {entry.matchedSymbols.length > 0 && (
+                              <p className="journal-entry__symbols">
+                                {entry.matchedSymbols.join(" · ")}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </article>
+                    )
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
