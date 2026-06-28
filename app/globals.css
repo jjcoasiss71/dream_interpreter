@@ -12,7 +12,7 @@
    Mode-fixed ambient tokens (do not change between modes).
    --------------------------------------------------------------------------- */
 :root {
-  --shell-width: 650px;
+  --shell-width: 1040px;
 
   /* Candle light pooling onto the letter (Nightfall). */
   --night-glow-core: rgba(200, 131, 42, 0.24);
@@ -387,7 +387,7 @@ body {
   padding: 0;
   cursor: pointer;
   font-family: var(--font-heading), serif;
-  font-size: 0.72rem;
+  font-size: 0.94rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--text-secondary) 92%, transparent);
@@ -398,7 +398,7 @@ body {
   text-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 50%, transparent);
 }
 .header-btn--icon {
-  font-size: 1.05rem;
+  font-size: 1.37rem;
   letter-spacing: 0;
 }
 
@@ -805,10 +805,11 @@ body[data-paper="photo"] .journal-entry {
 .scene-content .paper-sheet {
   position: relative;
   z-index: 2;
-  width: min(96%, 680px);
-  min-height: 800px;
-  margin: 40px auto 0;
+  width: min(96%, 940px);
+  min-height: 740px;
+  margin: 6px auto 0;
   border-radius: 0;
+  overflow: hidden; /* content reveals as the paper animates its height */
   display: flex;
   flex-direction: column;
 }
@@ -909,7 +910,7 @@ body[data-mode="daybreak"] .page-glow--night {
   z-index: 2;
   max-width: var(--shell-width);
   margin: 0 auto;
-  padding: 182px 1.75rem 5rem;
+  padding: 150px 1.75rem 5rem;
   opacity: 0;
   /* page-in, then a slow idle breath as if you're hunched over the desk */
   animation: pageIn 1.5s ease forwards,
@@ -1354,7 +1355,7 @@ body[data-mode="daybreak"] .toggle-knob {
   border: 1px solid transparent;
   color: var(--ink);
   font-family: var(--font-body), serif;
-  font-size: 1.5rem;
+  font-size: 1.95rem;
   line-height: 1.9em;
   outline: none;
   /* Parchment: candlelight catching the top, faint ruling lines below. */
@@ -1397,13 +1398,13 @@ body[data-mode="daybreak"] .toggle-knob {
 /* Submit — dark wax seal. */
 .seal-button {
   align-self: center;
-  padding: 0.95rem 2.6rem;
+  padding: 1.24rem 3.4rem;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--glow-primary) 28%, transparent);
   background: #0d0905;
   color: color-mix(in srgb, var(--glow-primary) 78%, var(--text-secondary));
   font-family: var(--font-heading), serif;
-  font-size: 0.82rem;
+  font-size: 1.07rem;
   font-weight: 500;
   letter-spacing: 0.32em;
   text-transform: uppercase;
@@ -1633,7 +1634,7 @@ body[data-mode="daybreak"] .toggle-knob {
 .interpretation {
   margin: 0;
   color: var(--ink);
-  font-size: 1.45rem;
+  font-size: 1.9rem;
   line-height: 1.95;
 }
 .reveal-line {
@@ -1870,7 +1871,7 @@ body[data-paper="photo"] .parchment {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 1.5rem;
+  font-size: 1.95rem;
   line-height: 1.9em;
   color: var(--ink);
   -webkit-text-stroke: 0.6px transparent;

@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   loadJournal,
   saveEntry,
@@ -25,6 +25,11 @@ const dateFmt = new Intl.DateTimeFormat(undefined, {
   month: "long",
   day: "numeric",
 });
+
+// useLayoutEffect on the client (no SSR warning) so the paper height can be
+// measured and animated before paint.
+const useIsoLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 type Result = {
   interpretation: string;
@@ -87,6 +92,34 @@ export default function Home() {
     timers.current = [];
   };
   useEffect(() => clearTimers, []);
+
+  // The paper grows/shrinks as its content changes (write -> glow -> reveal).
+  // Animate that height change instead of letting it jump.
+  const paperRef = useRef<HTMLDivElement>(null);
+  const prevPaperHeight = useRef<number | null>(null);
+  useIsoLayoutEffect(() => {
+    const el = paperRef.current;
+    if (!el) return;
+    if (prefersReducedMotion()) {
+      el.style.height = "";
+      prevPaperHeight.current = null;
+      return;
+    }
+    // measure the natural content height (unscaled by the stage transform)
+    el.style.transition = "none";
+    el.style.height = "auto";
+    const target = el.offsetHeight;
+    const prev = prevPaperHeight.current;
+    if (prev != null && Math.abs(prev - target) > 4) {
+      el.style.height = `${prev}px`;
+      void el.offsetHeight; // force reflow so the next change animates
+      el.style.transition = "height 800ms cubic-bezier(0.22, 1, 0.36, 1)";
+      el.style.height = `${target}px`;
+    } else {
+      el.style.height = `${target}px`;
+    }
+    prevPaperHeight.current = target;
+  }, [phase, result]);
 
   // Drive the adaptive UI from a single attribute on <body>.
   useEffect(() => {
@@ -377,7 +410,7 @@ export default function Home() {
           {/* A single sheet of paper. You write your dream on it; on sealing,
              the words glow, burn away, and the interpretation takes their place
              on the very same page. */}
-          <div className="paper-sheet parchment">
+          <div className="paper-sheet parchment" ref={paperRef}>
             {phase === "writing" && (
               <div className="sheet-face">
                 {error && <p className="notice">{error}</p>}
