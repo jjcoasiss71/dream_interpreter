@@ -12,7 +12,7 @@
    Mode-fixed ambient tokens (do not change between modes).
    --------------------------------------------------------------------------- */
 :root {
-  --shell-width: 1040px;
+  --shell-width: 2000px;
 
   /* Candle light pooling onto the letter (Nightfall). */
   --night-glow-core: rgba(200, 131, 42, 0.24);
@@ -260,6 +260,10 @@ body {
 }
 .viewport[data-view="writing"] .stage {
   transform: scale(0.78) translateY(1%);
+}
+/* the reveal is shown near full-size so the wide letter fills the screen */
+.viewport[data-view="paper"][data-phase="result"] .stage {
+  transform: scale(0.98);
 }
 .viewport[data-view="desk"] .desk {
   transform: scale(1);
@@ -812,6 +816,10 @@ body[data-paper="photo"] .journal-entry {
   overflow: hidden; /* content reveals as the paper animates its height */
   display: flex;
   flex-direction: column;
+}
+/* the reveal paper nearly fills the screen, to hold big portraits + text */
+.scene-content .paper-sheet--result {
+  width: min(98%, 1900px);
 }
 .sheet-face {
   flex: 1;
@@ -1675,6 +1683,108 @@ body[data-mode="daybreak"] .toggle-knob {
   color: color-mix(in srgb, var(--ink) 60%, transparent);
 }
 
+/* ===========================================================================
+   CONCEPT SECTIONS — one framework per row, a faded portrait beside the text,
+   the image clarifying as it nears the middle of the screen (scroll-driven).
+   =========================================================================== */
+.sheet-face.sheet-result {
+  gap: 3rem;
+}
+/* the result paper drops the breathing candlelight + its content isolation so
+   the portraits can multiply DIRECTLY onto the main paper — part of the letter,
+   not a separate image patched on top. */
+.scene-content .paper-sheet--result::after {
+  display: none;
+}
+.scene-content .paper-sheet--result > * {
+  z-index: auto;
+}
+
+.concept-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: conceptIn 1s ease forwards;
+}
+.concept-section[data-side="right"] {
+  flex-direction: row-reverse;
+}
+.concept-section[data-noimage="true"] {
+  display: block;
+}
+@keyframes conceptIn {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* the portrait — big, flush to the paper's edge, no frame */
+.concept-figure {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+.concept-section[data-side="left"] .concept-figure {
+  justify-content: flex-start;
+  margin-left: -1.75rem; /* sit flush to the paper's edge */
+}
+.concept-section[data-side="right"] .concept-figure {
+  justify-content: flex-end;
+  margin-right: -1.75rem;
+}
+.concept-img {
+  width: auto;
+  height: 48vh; /* about half the screen tall */
+  max-height: 640px;
+  object-fit: contain;
+  /* transparency is baked into the PNG, so it sits right on the paper */
+  opacity: 0.7; /* overwritten by the scroll handler */
+  pointer-events: none;
+  transition: opacity 180ms linear;
+}
+
+.concept-body {
+  flex: 1;
+  min-width: 0;
+}
+.concept-name {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-heading), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+.concept-text {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.7;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+/* the overall summary, full width below the concept rows */
+.concept-summary {
+  padding-top: 2rem;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  opacity: 0;
+  animation: conceptIn 1s ease 0.2s forwards;
+}
+.concept-summary__label {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-heading), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--glow-primary) 55%, var(--ink));
+}
+.concept-summary .concept-text {
+  font-style: italic;
+}
+
 /* after the interpretation: step inside / write again */
 .after {
   margin-top: 2rem;
@@ -2316,10 +2426,16 @@ body[data-paper="photo"] .parchment {
   }
   .shell,
   .reveal-line,
-  .cine-text {
+  .cine-text,
+  .concept-section,
+  .concept-summary {
     opacity: 1 !important;
     transform: none !important;
     clip-path: none !important;
+  }
+  .concept-section,
+  .concept-summary {
+    animation: none !important;
   }
   .camera,
   .desk,

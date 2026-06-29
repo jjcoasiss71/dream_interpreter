@@ -1,13 +1,9 @@
 // app/api/interpret/route.ts
 // ---------------------------------------------------------------------------
-// This is the SERVER endpoint. The browser sends a dream here; this code:
-//   1. matches symbols from the knowledge base
-//   2. gathers their sourced perspectives
-//   3. asks Groq's LLM to phrase a grounded interpretation
-//   4. sends the result back
-//
-// The Groq API key is read here on the server (process.env.GROQ_API_KEY) and
-// is NEVER sent to the browser, so users can't see or steal it.
+// The SERVER endpoint. It matches symbols, gathers their sourced per-framework
+// perspectives, and asks Groq for an interpretation written as ONE SECTION PER
+// FRAMEWORK plus an overall summary — so the UI can show each concept (Freud,
+// Jung, …) with its own portrait. The Groq key is read here only.
 // ---------------------------------------------------------------------------
 
 import { NextResponse } from "next/server";
@@ -18,7 +14,7 @@ import {
 } from "@/lib/knowledge";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile"; // a free, capable Groq model
+const MODEL = "llama-3.3-70b-versatile";
 
 // The client may send a small summary of the dreamer's on-device history so
 // the interpretation can notice recurring patterns. It is never stored here.
@@ -53,11 +49,32 @@ function buildHistoryText(history: unknown): string {
   return parts.join("\n\n");
 }
 
+/** Parse a response of "[label]\n text..." blocks into a map. */
+function parseLabeled(raw: string): Map<string, string> {
+  const map = new Map<string, string>();
+  let current: string | null = null;
+  let buf: string[] = [];
+  const flush = () => {
+    if (current) map.set(current, buf.join("\n").trim());
+    buf = [];
+  };
+  for (const line of raw.split("\n")) {
+    const label = /^\s*\[([a-z][a-z0-9-]*)\]\s*$/.exec(line);
+    if (label) {
+      flush();
+      current = label[1].toLowerCase();
+    } else {
+      buf.push(line);
+    }
+  }
+  flush();
+  return map;
+}
+
 export async function POST(request: Request) {
   try {
     const { dream, history } = await request.json();
 
-    // Basic validation
     if (!dream || typeof dream !== "string" || dream.trim().length < 3) {
       return NextResponse.json(
         { error: "Please describe your dream in a little more detail." },
@@ -73,45 +90,57 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1 + 2. Retrieve matching symbols and build grounded reference text.
+    // Match symbols, then group their perspectives BY framework.
     const matched = matchSymbols(dream);
-
-    let groundingText: string;
-    if (matched.length > 0) {
-      groundingText = matched
-        .map((symbol) => {
-          const lines = symbol.perspectives.map((p) => {
-            const fw = getFramework(p.framework);
-            const fwName = fw ? fw.name : p.framework;
-            return `    • [${fwName}] ${p.meaning} (Source: ${p.source})`;
-          });
-          return `Symbol "${symbol.label}":\n${lines.join("\n")}`;
-        })
-        .join("\n\n");
-    } else {
-      // No specific symbol matched — give the LLM the general frameworks so it
-      // can still respond sensibly instead of inventing meanings.
-      groundingText =
-        "No specific catalogued symbol was detected. General frameworks:\n" +
-        frameworkSummaries();
+    const byFramework = new Map<string, { name: string; lines: string[] }>();
+    for (const symbol of matched) {
+      for (const p of symbol.perspectives) {
+        const fw = getFramework(p.framework);
+        const name = fw ? fw.name : p.framework;
+        if (!byFramework.has(p.framework)) {
+          byFramework.set(p.framework, { name, lines: [] });
+        }
+        byFramework
+          .get(p.framework)!
+          .lines.push(`    • "${symbol.label}": ${p.meaning} (Source: ${p.source})`);
+      }
     }
+    const frameworkIds = [...byFramework.keys()];
 
-    // 3. Ask Groq to phrase the interpretation, constrained to our sources.
+    const groundingText =
+      frameworkIds.length > 0
+        ? frameworkIds
+            .map((id) => {
+              const f = byFramework.get(id)!;
+              return `[${id}] ${f.name}\n${f.lines.join("\n")}`;
+            })
+            .join("\n\n")
+        : "No specific catalogued symbol was detected. General frameworks:\n" +
+          frameworkSummaries();
+
+    const labelLines =
+      frameworkIds.length > 0
+        ? `${frameworkIds.map((id) => `[${id}]`).join("\n")}\n[summary]`
+        : "[summary]";
+
     const historyText = buildHistoryText(history);
 
     const systemPrompt = `You are a careful, empathetic dream-interpretation assistant.
 Rules:
-- Explain the dream ONLY using the provided sourced perspectives below.
-- Do NOT invent symbol meanings or cite anything not provided.
-- Attribute ideas to their framework (e.g. "In Jungian theory...").
+- Explain the dream ONLY using the provided sourced perspectives below; never invent meanings.
+- Write ONE section per framework, then a final [summary] section.
+- In each framework's section: attribute ideas to that framework ("In Jungian theory…"), use ONLY that framework's perspectives, 2–4 sentences.
 - Never claim certainty; dream interpretation is subjective.
-- If the dreamer's history shows a genuinely recurring theme or symbol, you may gently note the pattern — but never force a connection or invent one.
-- Be warm and concise. End with one gentle, reflective question.
+- If the dreamer's history shows a genuinely recurring theme, you may gently note it (best in the summary) — never force a connection.
+- The [summary] ties the frameworks together in a few warm sentences and ends with ONE gentle, reflective question.
 ${
   historyText
-    ? `\nThe dreamer's private dream history (use it only to notice real recurring themes and make the reading more personal):\n${historyText}\n`
+    ? `\nThe dreamer's private dream history (use only to notice real recurring themes):\n${historyText}\n`
     : ""
 }
+Output format — put each label ALONE on its own line, then its text below it. Use exactly these labels in this order, and no other bracketed labels:
+${labelLines}
+
 Sourced perspectives you may use:
 ${groundingText}`;
 
@@ -141,20 +170,37 @@ ${groundingText}`;
     }
 
     const data = await groqResponse.json();
-    const interpretation: string =
-      data.choices?.[0]?.message?.content ?? "No interpretation was generated.";
+    const raw: string = data.choices?.[0]?.message?.content ?? "";
+    const parsed = parseLabeled(raw);
 
-    // 4. Send back the interpretation plus which symbols/frameworks were used.
-    const frameworksUsed = Array.from(
-      new Set(matched.flatMap((s) => s.perspectives.map((p) => p.framework)))
-    )
-      .map((id) => getFramework(id)?.name)
-      .filter(Boolean);
+    const sections = frameworkIds
+      .map((id) => ({
+        framework: id,
+        name: byFramework.get(id)!.name,
+        text: parsed.get(id) ?? "",
+      }))
+      .filter((s) => s.text.length > 0);
+
+    let summary = parsed.get("summary") ?? "";
+    // If the model ignored the format entirely, fall back to the raw text.
+    if (sections.length === 0 && !summary) {
+      summary = raw.trim() || "No interpretation was generated.";
+    }
+
+    // A flat string for the on-device journal (and any text-only use).
+    const interpretation = [
+      ...sections.map((s) => `${s.name}\n${s.text}`),
+      summary ? `In sum\n${summary}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
 
     return NextResponse.json({
+      sections,
+      summary,
       interpretation,
       matchedSymbols: matched.map((s) => s.label),
-      frameworksUsed,
+      frameworksUsed: sections.map((s) => s.name),
     });
   } catch (err) {
     console.error(err);

@@ -31,7 +31,10 @@ const dateFmt = new Intl.DateTimeFormat(undefined, {
 const useIsoLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+type ConceptSection = { framework: string; name: string; text: string };
 type Result = {
+  sections: ConceptSection[];
+  summary: string;
   interpretation: string;
   matchedSymbols: string[];
   frameworksUsed: string[];
@@ -43,14 +46,37 @@ type Phase = "writing" | "sending" | "result" | "fainting" | "dreamworld" | "wak
 // camera distance from the desk — the zoom system (DESK / PAPER / WRITING)
 type CameraView = "desk" | "paper" | "writing";
 
-// Break the interpretation into lines so each fades in on its own beat —
-// like a scroll slowly unrolled. Honors paragraph breaks, then sentences.
-function toLines(text: string): string[] {
-  return text
-    .split(/\n+/)
-    .flatMap((para) => para.match(/[^.?!]+[.?!]*\s*/g) ?? [para])
-    .map((line) => line.trim())
-    .filter(Boolean);
+// One framework's reading: its portrait (if an image exists) on the given
+// side, with the interpretation text beside it. The image fades in/out by
+// scroll position (driven from <Home>).
+function FrameworkSection({
+  section,
+  side,
+}: {
+  section: ConceptSection;
+  side: "left" | "right";
+}) {
+  const [hasImage, setHasImage] = useState(true);
+  return (
+    <div className="concept-section" data-side={side} data-noimage={!hasImage}>
+      {hasImage && (
+        <div className="concept-figure">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="concept-img"
+            src={`/${section.framework}.png`}
+            alt=""
+            aria-hidden="true"
+            onError={() => setHasImage(false)}
+          />
+        </div>
+      )}
+      <div className="concept-body">
+        <p className="concept-name">{section.name}</p>
+        <p className="concept-text">{section.text}</p>
+      </div>
+    </div>
+  );
 }
 
 function prefersReducedMotion() {
@@ -119,6 +145,41 @@ export default function Home() {
       el.style.height = `${target}px`;
     }
     prevPaperHeight.current = target;
+  }, [phase, result]);
+
+  // Each concept portrait clarifies as it nears the middle of the screen and
+  // fades as it leaves (driven by scroll position).
+  useEffect(() => {
+    if (phase !== "result") return;
+    const reduced = prefersReducedMotion();
+    let raf = 0;
+    const update = () => {
+      const vh = window.innerHeight;
+      document.querySelectorAll<HTMLElement>(".concept-img").forEach((img) => {
+        if (reduced) {
+          img.style.opacity = "0.45";
+          return;
+        }
+        const r = img.getBoundingClientRect();
+        const center = r.top + r.height / 2;
+        const dist = Math.min(1, Math.abs(center - vh / 2) / (vh * 0.7));
+        img.style.opacity = String(0.55 + (1 - dist) * 0.45);
+      });
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
+    if (!reduced) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll);
+    }
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
   }, [phase, result]);
 
   // Drive the adaptive UI from a single attribute on <body>.
@@ -279,7 +340,6 @@ export default function Home() {
     timers.current.push(setTimeout(() => setPhase("result"), ms));
   }
 
-  const lines = result ? toLines(result.interpretation) : [];
   const inDream = phase === "fainting" || phase === "dreamworld" || phase === "waking";
   const symbols = result?.matchedSymbols ?? [];
 
@@ -410,7 +470,12 @@ export default function Home() {
           {/* A single sheet of paper. You write your dream on it; on sealing,
              the words glow, burn away, and the interpretation takes their place
              on the very same page. */}
-          <div className="paper-sheet parchment" ref={paperRef}>
+          <div
+            className={`paper-sheet parchment${
+              phase === "result" ? " paper-sheet--result" : ""
+            }`}
+            ref={paperRef}
+          >
             {phase === "writing" && (
               <div className="sheet-face">
                 {error && <p className="notice">{error}</p>}
@@ -441,17 +506,20 @@ export default function Home() {
             {/* the interpretation appears in its place on the same sheet */}
             {phase === "result" && result && (
               <div className="sheet-face sheet-result">
-                <p className="interpretation">
-                  {lines.map((line, i) => (
-                    <span
-                      key={`${i}-${line.slice(0, 12)}`}
-                      className="reveal-line"
-                      style={{ animationDelay: `${i * 0.3}s` }}
-                    >
-                      {line}
-                    </span>
-                  ))}
-                </p>
+                {result.sections.map((section, i) => (
+                  <FrameworkSection
+                    key={section.framework}
+                    section={section}
+                    side={i % 2 === 0 ? "left" : "right"}
+                  />
+                ))}
+
+                {result.summary && (
+                  <div className="concept-summary">
+                    <p className="concept-summary__label">In sum</p>
+                    <p className="concept-text">{result.summary}</p>
+                  </div>
+                )}
 
                 {(result.matchedSymbols.length > 0 ||
                   result.frameworksUsed.length > 0) && (
