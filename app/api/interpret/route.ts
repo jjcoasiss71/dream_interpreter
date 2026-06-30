@@ -16,9 +16,7 @@ import {
   getFramework,
   frameworkSummaries,
 } from "@/lib/knowledge";
-
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile"; // a free, capable Groq model
+import { chat, hasLLM } from "@/lib/llm";
 
 // The client may send a small summary of the dreamer's on-device history so
 // the interpretation can notice recurring patterns. It is never stored here.
@@ -65,10 +63,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
+    if (!hasLLM()) {
       return NextResponse.json(
-        { error: "Server is missing its GROQ_API_KEY." },
+        { error: "Server is missing its LLM API key." },
         { status: 500 }
       );
     }
@@ -115,34 +112,23 @@ ${
 Sourced perspectives you may use:
 ${groundingText}`;
 
-    const groqResponse = await fetch(GROQ_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        temperature: 0.7,
-        messages: [
+    let interpretation: string;
+    try {
+      interpretation = await chat(
+        [
           { role: "system", content: systemPrompt },
           { role: "user", content: `My dream: ${dream}` },
         ],
-      }),
-    });
-
-    if (!groqResponse.ok) {
-      const detail = await groqResponse.text();
-      console.error("Groq error:", detail);
+        { temperature: 0.7, maxTokens: 1200 }
+      );
+    } catch (err) {
+      console.error("interpret LLM error:", err);
       return NextResponse.json(
         { error: "The interpreter is busy right now. Please try again." },
         { status: 502 }
       );
     }
-
-    const data = await groqResponse.json();
-    const interpretation: string =
-      data.choices?.[0]?.message?.content ?? "No interpretation was generated.";
+    if (!interpretation.trim()) interpretation = "No interpretation was generated.";
 
     // 4. Send back the interpretation plus which symbols/frameworks were used.
     const frameworksUsed = Array.from(

@@ -19,6 +19,7 @@ import {
   type JournalEntry,
   type JournalView,
 } from "@/lib/journal";
+import { DreamWalk } from "@/components/DreamWalk";
 
 const dateFmt = new Intl.DateTimeFormat(undefined, {
   year: "numeric",
@@ -267,6 +268,7 @@ export default function Home() {
   function enterDream() {
     clearTimers();
     window.scrollTo({ top: 0, behavior: "smooth" });
+    // Faint, then arrive in the Dream Walk (the walk begins itself on arrival).
     setPhase("fainting");
     const ms = prefersReducedMotion() ? 500 : 3000;
     timers.current.push(setTimeout(() => setPhase("dreamworld"), ms));
@@ -532,17 +534,18 @@ export default function Home() {
       {/* Consciousness fading */}
       <div className="faint-veil" aria-hidden="true" />
 
-      {/* The dream world we fall into (placeholder — to be built out later) */}
+      {/* The dream world we fall into: a walkable, fog-shrouded 3D scene built
+         from the dream just written. Mounted only while in-dream; movement is
+         live only once we've fully arrived (the "dreamworld" phase). */}
       {inDream && (
-        <div className="dreamworld" aria-hidden={phase !== "dreamworld"}>
-          <h2>You are inside the dream</h2>
-          <p>
-            The room is gone. What you wrote is taking shape around you — though
-            it has not finished becoming anything yet.
-          </p>
-          <button type="button" className="wake" onClick={wakeUp}>
-            Wake up
-          </button>
+        <div className="dreamworld" data-phase={phase} aria-hidden={phase !== "dreamworld"}>
+          {phase === "dreamworld" && (
+            <DreamWalk
+              dream={sentText || dream}
+              symbols={symbols}
+              onWake={wakeUp}
+            />
+          )}
         </div>
       )}
 

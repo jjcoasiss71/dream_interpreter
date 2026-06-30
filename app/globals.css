@@ -2114,50 +2114,87 @@ body[data-paper="photo"] .parchment {
   opacity: 0;
 }
 
-/* the dream world we fall into (placeholder for now) */
+/* the dream world we fall into: a walkable, fog-shrouded 3D scene */
 .dreamworld {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  padding: 2rem;
   opacity: 0;
   pointer-events: none;
-  background:
-    radial-gradient(120% 90% at 50% 18%, #1b2236 0%, transparent 60%),
-    radial-gradient(120% 90% at 50% 100%, #2a1430 0%, transparent 55%),
-    #07080e;
-  color: #e7e2f0;
-  transition: opacity 1200ms ease;
+  background: #07080e; /* fallback while WebGL mounts */
+  transition: opacity 1400ms ease;
 }
 .viewport[data-phase="dreamworld"] .dreamworld {
   opacity: 1;
   pointer-events: auto;
 }
-.dreamworld h2 {
-  font-family: var(--font-heading), serif;
-  font-weight: 300;
-  letter-spacing: 0.12em;
-  font-size: clamp(1.8rem, 6vw, 2.6rem);
-  margin: 0 0 1rem;
-  text-shadow: 0 0 40px rgba(150, 170, 255, 0.4);
+/* the rendered canvas fills the whole field of view */
+.dream-canvas {
+  position: absolute !important;
+  inset: 0;
+  display: block;
+  touch-action: none;
 }
-.dreamworld p {
-  font-style: italic;
-  color: #b9b4cc;
-  max-width: 34ch;
-  margin: 0 auto 2.25rem;
+
+/* HUD over the canvas — laid out full-bleed but transparent to clicks, so the
+   click that locks the pointer for mouse-look always reaches the canvas. */
+.dreamworld__hud {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.dreamworld__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 2.2rem;
+  transform: translateX(-50%);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  max-width: min(92vw, 44ch);
+  font-family: var(--font-heading), serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  color: rgba(231, 226, 240, 0.62);
+  text-transform: lowercase;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.85);
+  animation: hudFade 1200ms ease 700ms both;
+}
+.dreamworld__hint kbd {
+  font-family: var(--font-heading), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.4rem;
+  border: 1px solid rgba(231, 226, 240, 0.3);
+  border-radius: 5px;
+  color: rgba(231, 226, 240, 0.85);
+}
+@keyframes hudFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .dreamworld .wake {
-  padding: 0.9rem 2.4rem;
+  position: absolute;
+  top: 1.6rem;
+  right: 1.6rem;
+  pointer-events: auto;
+  padding: 0.7rem 1.85rem;
   border-radius: 999px;
-  border: 1px solid rgba(180, 190, 230, 0.3);
-  background: transparent;
+  border: 1px solid rgba(180, 190, 230, 0.28);
+  background: rgba(10, 10, 18, 0.45);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
   color: #d8d3ea;
   font-family: var(--font-heading), serif;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   cursor: pointer;
@@ -2166,6 +2203,254 @@ body[data-paper="photo"] .parchment {
 .dreamworld .wake:hover {
   border-color: rgba(180, 190, 230, 0.6);
   box-shadow: 0 0 26px -6px rgba(150, 170, 255, 0.45);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dreamworld__hint {
+    animation: none;
+  }
+}
+
+/* The Dream Walk — a narrated 360° exploration of the dream. */
+.dreamwalk {
+  position: absolute;
+  inset: 0;
+}
+/* the scene slideshow fills the field of view, behind the panel */
+.dreamwalk__pano {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.dreamslides {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #05050a;
+}
+.dreamslides--empty {
+  background:
+    radial-gradient(120% 90% at 50% 20%, #221a2e 0%, transparent 60%),
+    radial-gradient(120% 90% at 50% 110%, #2a1430 0%, transparent 55%),
+    #07070e;
+}
+.dreamslide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1600ms ease;
+  will-change: opacity, transform;
+}
+.dreamslide[data-active="true"] {
+  opacity: 1;
+  animation: kenburns 7600ms ease-out both;
+}
+@keyframes kenburns {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.13);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dreamslide {
+    transition: opacity 600ms ease;
+  }
+  .dreamslide[data-active="true"] {
+    animation: none;
+  }
+}
+.pano-canvas {
+  position: absolute !important;
+  inset: 0;
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+/* make sure the actual <canvas> fills its container, not just the wrapper */
+.dreamwalk__pano canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.pano-canvas:active {
+  cursor: grabbing;
+}
+.dreamwalk__look {
+  position: absolute;
+  top: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  font-family: var(--font-heading), serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  color: rgba(231, 226, 240, 0.55);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+/* narration + choices float over the lower part of the full-screen panorama */
+.dreamwalk__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  max-height: 42vh;
+  padding: 3.5rem clamp(1rem, 4vw, 2rem) 1.3rem;
+  background: linear-gradient(
+    to top,
+    rgba(8, 7, 12, 0.78) 0%,
+    rgba(8, 7, 12, 0.45) 55%,
+    rgba(8, 7, 12, 0) 100%
+  );
+}
+.dreamwalk__log {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  overflow-y: auto;
+  padding: 0.5rem 0.25rem 0.5rem;
+  scrollbar-width: thin;
+}
+.dreamwalk__scene {
+  font-family: var(--font-body), serif;
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  line-height: 1.85;
+  color: #ece5d6;
+  margin: 0 0 1.5rem;
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.6);
+  animation: sceneIn 1100ms ease both;
+}
+@keyframes sceneIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.dreamwalk__choice-made {
+  font-family: var(--font-heading), serif;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  color: rgba(201, 178, 150, 0.78);
+  margin: 0 0 1.5rem;
+}
+.dreamwalk__loading {
+  font-family: var(--font-heading), serif;
+  font-style: italic;
+  letter-spacing: 0.18em;
+  color: rgba(220, 214, 230, 0.5);
+  animation: hudFade 1100ms ease-in-out infinite alternate;
+}
+.dreamwalk__error {
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  color: #d7a18f;
+}
+.dreamwalk__controls {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(200, 190, 175, 0.12);
+}
+.dreamwalk__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.dreamwalk__choice {
+  flex: 1 1 auto;
+  min-width: 9rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 178, 150, 0.32);
+  background: rgba(20, 16, 26, 0.5);
+  color: #e7ded0;
+  font-family: var(--font-body), serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 280ms ease, background 280ms ease, box-shadow 280ms ease;
+}
+.dreamwalk__choice:hover {
+  border-color: rgba(255, 211, 160, 0.6);
+  background: rgba(40, 30, 24, 0.6);
+  box-shadow: 0 0 24px -8px rgba(255, 190, 120, 0.5);
+}
+.dreamwalk__custom {
+  display: flex;
+  gap: 0.5rem;
+}
+.dreamwalk__custom input {
+  flex: 1 1 auto;
+  padding: 0.65rem 0.9rem;
+  border-radius: 4px;
+  border: 1px solid rgba(200, 190, 175, 0.18);
+  background: rgba(12, 10, 16, 0.55);
+  color: #e7ded0;
+  font-family: var(--font-body), serif;
+  font-size: 1rem;
+}
+.dreamwalk__custom input::placeholder {
+  color: rgba(200, 190, 175, 0.4);
+  font-style: italic;
+}
+.dreamwalk__custom input:focus {
+  outline: none;
+  border-color: rgba(255, 211, 160, 0.5);
+}
+.dreamwalk__custom button {
+  padding: 0.65rem 1.3rem;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 178, 150, 0.3);
+  background: transparent;
+  color: #d8cfbf;
+  font-family: var(--font-heading), serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: border-color 280ms ease, opacity 200ms ease;
+}
+.dreamwalk__custom button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.dreamwalk__wake {
+  align-self: center;
+  margin-top: 0.25rem;
+  padding: 0.55rem 1.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(180, 190, 230, 0.22);
+  background: transparent;
+  color: rgba(216, 211, 234, 0.75);
+  font-family: var(--font-heading), serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 360ms ease, color 360ms ease;
+}
+.dreamwalk__wake:hover {
+  border-color: rgba(180, 190, 230, 0.5);
+  color: #e7e2f0;
 }
 
 /* Drifting under: the dream's symbols glow and rise from the page as
