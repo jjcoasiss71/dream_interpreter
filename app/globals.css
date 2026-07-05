@@ -6,7 +6,7 @@
    Component styles never hardcode color — they read from the tokens below.
    =========================================================================== */
 
-@import "tailwindcss";
+@import "./preflight.css" layer(base);
 
 /* ---------------------------------------------------------------------------
    Mode-fixed ambient tokens (do not change between modes).
