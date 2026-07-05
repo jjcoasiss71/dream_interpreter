@@ -4,7 +4,7 @@ import {
   EB_Garamond,
   IM_Fell_English_SC,
 } from "next/font/google";
-import "./globals.css";
+import "@/styles/index.css";
 
 // Title: an 1800s small-caps revival of the historic Fell printing types.
 const title = IM_Fell_English_SC({

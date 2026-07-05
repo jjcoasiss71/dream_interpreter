@@ -1,0 +1,166 @@
+/* ===========================================================================
+   STEP 6c — The faint + STEP 6d — dream world (placeholder)
+   =========================================================================== */
+
+/* tunnel-vision veil that closes in as consciousness fades */
+.faint-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 50% 44%, transparent 0%, transparent 24%, rgba(0, 0, 0, 0.98) 78%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 22%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 22%);
+  transition: opacity 2600ms ease;
+}
+
+/* drifting under: NO camera tilt — a calm, hypnotic zoom + growing blur, the
+   parchment swelling to fill the view as consciousness fades to black */
+.viewport[data-phase="fainting"] .camera,
+.viewport[data-phase="dreamworld"] .camera {
+  transform: scale(1.5);
+  filter: blur(11px) saturate(0.65) brightness(0.82);
+}
+/* the parchment itself enlarges a little further than the scene */
+.viewport[data-phase="fainting"] .journal {
+  transform: scale(1.22);
+  transition: transform 3000ms ease;
+}
+/* the candle flames flicker harder as you go under */
+.viewport[data-phase="fainting"] .candle-halo {
+  animation-duration: 0.5s;
+}
+.viewport[data-phase="fainting"] .candle-photo,
+.viewport[data-phase="fainting"] .flame {
+  animation: candleFlare 0.45s ease-in-out infinite;
+}
+@keyframes candleFlare {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.04);
+  }
+}
+.viewport[data-phase="fainting"] .desk,
+.viewport[data-phase="fainting"] .page-glow,
+.viewport[data-phase="dreamworld"] .desk,
+.viewport[data-phase="dreamworld"] .page-glow {
+  filter: brightness(0.4) blur(3px);
+}
+.viewport[data-phase="fainting"] .faint-veil {
+  opacity: 1;
+}
+.viewport[data-phase="dreamworld"] .camera {
+  opacity: 0;
+  pointer-events: none;
+}
+.viewport[data-phase="dreamworld"] .faint-veil {
+  opacity: 0;
+}
+
+/* waking: reverse — eyes open, view tilts forward, desk returns */
+.viewport[data-phase="waking"] .camera {
+  transform: none;
+  filter: none;
+}
+.viewport[data-phase="waking"] .faint-veil {
+  opacity: 0;
+}
+
+/* the dream world we fall into (placeholder for now) */
+.dreamworld {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 18%, #1b2236 0%, transparent 60%),
+    radial-gradient(120% 90% at 50% 100%, #2a1430 0%, transparent 55%),
+    #07080e;
+  color: #e7e2f0;
+  transition: opacity 1200ms ease;
+}
+.viewport[data-phase="dreamworld"] .dreamworld {
+  opacity: 1;
+  pointer-events: auto;
+}
+.dreamworld h2 {
+  font-family: var(--font-heading), serif;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  margin: 0 0 1rem;
+  text-shadow: 0 0 40px rgba(150, 170, 255, 0.4);
+}
+.dreamworld p {
+  font-style: italic;
+  color: #b9b4cc;
+  max-width: 34ch;
+  margin: 0 auto 2.25rem;
+}
+.dreamworld .wake {
+  padding: 0.9rem 2.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(180, 190, 230, 0.3);
+  background: transparent;
+  color: #d8d3ea;
+  font-family: var(--font-heading), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 400ms ease, box-shadow 400ms ease;
+}
+.dreamworld .wake:hover {
+  border-color: rgba(180, 190, 230, 0.6);
+  box-shadow: 0 0 26px -6px rgba(150, 170, 255, 0.45);
+}
+
+/* Drifting under: the dream's symbols glow and rise from the page as
+   particles, then dissolve as the veil closes to black. */
+.symbol-rise {
+  position: fixed;
+  inset: 0;
+  z-index: 38;
+  pointer-events: none;
+}
+.symbol-particle {
+  position: absolute;
+  bottom: 46%;
+  font-family: var(--font-heading), serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  color: var(--glow-primary);
+  text-shadow: 0 0 16px var(--glow-primary),
+    0 0 34px color-mix(in srgb, var(--glow-primary) 60%, transparent);
+  opacity: 0;
+  animation: symbolRise 3.2s ease-in forwards;
+}
+@keyframes symbolRise {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.9);
+    filter: blur(0);
+  }
+  30% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-240px) scale(1.18);
+    filter: blur(4px);
+  }
+}
+

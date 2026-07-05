@@ -1,0 +1,169 @@
+/* ===========================================================================
+   STEP 1 + 6b — Viewport / camera / desk
+   The viewport holds a perspective so the camera can tilt during the faint.
+   The desk + glow + backrest are fixed scenery behind the camera.
+   =========================================================================== */
+.viewport {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+/* The desk — very old, worn wood seen first-person (above-and-forward). */
+.desk {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--desk);
+  /* The wood photo (public/desk.jpg), dimmed to a dark room. If the file
+     isn't present yet, the CSS plank fallback below shows instead. */
+  background-image: image-set(url("/desk.jpg") 1x),
+    /* fallback: horizontal plank seams + grain + a couple of knots */
+    radial-gradient(closest-side, rgba(0, 0, 0, 0.5), transparent),
+    radial-gradient(closest-side, rgba(0, 0, 0, 0.5), transparent),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.32) 0,
+      rgba(0, 0, 0, 0.32) 2px,
+      transparent 2px,
+      transparent 150px
+    ),
+    repeating-linear-gradient(
+      0.5deg,
+      var(--desk-grain-dark) 0,
+      var(--desk-grain-dark) 1px,
+      transparent 1px,
+      transparent 7px
+    ),
+    linear-gradient(115deg, #2c1d0e, #54381c 40%, #3a2613 70%, #20150a);
+  background-size: cover, 150px 150px, 110px 110px, cover, cover, cover;
+  background-position: center, 22% 28%, 74% 70%, center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat;
+  filter: brightness(var(--desk-bright)) saturate(0.85);
+  transition: background-color 800ms ease-in-out, filter 2600ms ease,
+    transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Candle pool: the wood is visible in the center, the edges fall to black —
+   only what the candle reaches is lit. */
+.desk::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    62% 48% at 50% 42%,
+    var(--desk-veil-center) 0%,
+    var(--desk-veil-edge) 76%
+  );
+}
+
+/* The chair backrest / your shoulders — soft dark mass at the bottom edge,
+   present so the POV reads as seated (matters most for the faint). */
+.backrest {
+  position: fixed;
+  left: 50%;
+  bottom: -8vh;
+  width: 150vw;
+  height: 26vh;
+  z-index: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(
+    60% 100% at 50% 100%,
+    rgba(0, 0, 0, 0.75),
+    transparent 72%
+  );
+}
+
+.camera {
+  position: relative;
+  z-index: 2;
+  transform-origin: 50% 100%;
+  /* Faint (6c): the head tilts back, the desk falls away. */
+  transition: transform 2600ms ease, filter 2600ms ease, opacity 1000ms ease;
+}
+
+/* ===========================================================================
+   CAMERA ZOOM SYSTEM — desk / paper / writing.
+   The stage scales the scene content; the desk scales a little less, so the
+   paper comes toward you (parallax depth). The faint lives on .camera, so the
+   two transforms compose without conflict. Each view can also be given its
+   own desk/background treatment via the [data-view] hooks below.
+   =========================================================================== */
+.stage {
+  transform-origin: center 42%;
+  transition: transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.viewport[data-view="desk"] .stage {
+  transform: scale(0.74) translateY(-1.5%);
+}
+.viewport[data-view="paper"] .stage {
+  transform: scale(0.7);
+}
+.viewport[data-view="writing"] .stage {
+  transform: scale(0.78) translateY(1%);
+}
+.viewport[data-view="desk"] .desk {
+  transform: scale(1);
+}
+.viewport[data-view="paper"] .desk {
+  transform: scale(1.06);
+}
+.viewport[data-view="writing"] .desk {
+  transform: scale(1.12);
+}
+
+/* ===========================================================================
+   DESK_VIEW backdrop — the composed scene photo, shown only in desk view and
+   crossfading away as you lean in to the live, writable scene beneath.
+   =========================================================================== */
+.scene-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  /* the scene photo always fills the screen — crops as needed, never bars */
+  background: #0a0806 url("/scene.jpg") center / cover no-repeat;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  /* the lean-in crossfade */
+  transition: opacity 1300ms ease, transform 1300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.viewport[data-view="desk"] .scene-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* gentle "click to enter" hint, low in the frame */
+.scene-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  z-index: 2;
+  transform: translateX(-50%);
+  font-family: var(--font-heading), serif;
+  font-weight: 500;
+  font-size: 1.45rem;
+  letter-spacing: 0.46em;
+  text-indent: 0.46em; /* offset the trailing tracking so it reads centered */
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-primary) 98%, transparent);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--glow-primary) 70%, transparent),
+    0 0 38px color-mix(in srgb, var(--glow-primary) 40%, transparent);
+  pointer-events: none;
+  animation: hintPulse 3.4s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+

@@ -1,0 +1,146 @@
+/* ---------------------------------------------------------------------------
+   Mode-fixed ambient tokens (do not change between modes).
+   --------------------------------------------------------------------------- */
+:root {
+  --shell-width: 1040px;
+
+  /* Candle light pooling onto the letter (Nightfall). */
+  --night-glow-core: rgba(200, 131, 42, 0.24);
+  --night-glow-bleed: rgba(255, 107, 26, 0.07);
+
+  /* Morning light washing the desk (Daybreak). */
+  --day-glow-core: rgba(220, 198, 160, 0.16);
+  --day-glow-mist: rgba(255, 255, 255, 0.05);
+
+  /* Candle flame — intrinsic warmth, only ever shown in Nightfall. */
+  --flame-core: #ffe6b8;
+  --flame-mid: #e8a040;
+  --flame-edge: #e8731a;
+
+  /* Smoke — thin pale wisp, only ever shown in Daybreak. */
+  --smoke-stroke: rgba(245, 236, 215, 0.5);
+}
+
+/* ---------------------------------------------------------------------------
+   NIGHTFALL — midnight séance at the desk, one candle, heavy eyelids.
+   --------------------------------------------------------------------------- */
+body[data-mode="nightfall"] {
+  --bg: #0d0905;
+  --void: #050302;
+  --glow-primary: #e8a040;
+  --glow-primary-deep: #c8832a;
+  --glow-secondary: rgba(255, 107, 26, 0.04);
+  --text-primary: #f5ecd7;
+  --text-secondary: #a89070;
+  --accent: #5c1a0a;
+  --card-bg: #1a1008;
+
+  /* Scene — dark wood, lit by the candle */
+  --desk: #1b130b;
+  --desk-lit: rgba(122, 82, 40, 0.32);
+  --desk-grain-dark: rgba(0, 0, 0, 0.5);
+  --desk-grain-light: rgba(255, 206, 140, 0.05);
+  --desk-sheen: rgba(232, 160, 64, 0.05);
+  /* how dark the room is: the photo is dimmed, then a veil swallows the
+     edges so only the candle's pool of wood is visible */
+  --desk-bright: 0.42;
+  --desk-veil-center: rgba(8, 4, 1, 0.32);
+  --desk-veil-edge: rgba(3, 2, 1, 0.97);
+  /* the dark room pressing in (subtle-dread atmosphere) */
+  --vignette-edge: rgba(0, 0, 0, 0.74);
+  /* The letter — aged parchment with dark ink, catching candlelight */
+  --paper: #e7d6ac;
+  --paper-glow: rgba(255, 228, 164, 0.5);
+  --paper-cast: rgba(232, 160, 64, 0.22);
+  --paper-shade: rgba(26, 15, 6, 0.36);
+  --paper-line: rgba(92, 50, 20, 0.16);
+  --paper-edge: rgba(54, 34, 14, 0.55);
+  --ink: #34240f;
+  --crease: rgba(70, 46, 22, 0.4);
+  --wax: #5c1a0a;
+}
+
+/* ---------------------------------------------------------------------------
+   DAYBREAK — soft morning fog, the candle out, pale light over the same desk.
+   --text-secondary lifted to #9c8a72 so it clears WCAG AA (~4.9:1) against
+   --card-bg #241e1a (the spec's #8c7a65 lands ~4.0:1, under AA; the contrast
+   constraint wins over the listed hex).
+   --------------------------------------------------------------------------- */
+body[data-mode="daybreak"] {
+  --bg: #2a2420;
+  --void: #1a1613;
+  --glow-primary: #dcc6a0;
+  --glow-primary-deep: #dcc6a0;
+  --glow-secondary: rgba(255, 255, 255, 0.06);
+  --text-primary: #f5ecd7;
+  --text-secondary: #9c8a72;
+  --accent: #5c1a0a;
+  --card-bg: #241e1a;
+
+  /* Scene — same desk, cooler morning light */
+  --desk: #2a231b;
+  --desk-lit: rgba(206, 184, 150, 0.18);
+  --desk-grain-dark: rgba(0, 0, 0, 0.32);
+  --desk-grain-light: rgba(255, 240, 214, 0.05);
+  --desk-sheen: rgba(220, 198, 160, 0.06);
+  /* morning: the room is dim but not black — the photo shows more */
+  --desk-bright: 0.72;
+  --desk-veil-center: rgba(10, 8, 5, 0.1);
+  --desk-veil-edge: rgba(8, 6, 4, 0.74);
+  /* lighter morning, but the unease never fully leaves */
+  --vignette-edge: rgba(0, 0, 0, 0.46);
+  /* The letter — parchment, cooler and a touch lighter in the morning */
+  --paper: #ece2c8;
+  --paper-glow: rgba(255, 250, 236, 0.45);
+  --paper-cast: rgba(220, 206, 178, 0.16);
+  --paper-shade: rgba(40, 32, 18, 0.2);
+  --paper-line: rgba(92, 60, 28, 0.14);
+  --paper-edge: rgba(60, 44, 22, 0.4);
+  --ink: #3a2c16;
+  --crease: rgba(70, 52, 28, 0.32);
+  --wax: #5c1a0a;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--void);
+  color: var(--text-primary);
+  font-family: var(--font-body), Garamond, "EB Garamond", serif;
+  font-size: 1.125rem;
+  line-height: 1.9;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 800ms ease-in-out, color 800ms ease-in-out;
+}
+
+/* Custom scrollbar — thin, dark, no track background. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-secondary) 40%, transparent)
+    transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-secondary) 35%, transparent);
+  border-radius: 8px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--glow-primary) 30%, transparent);
+  color: var(--text-primary);
+}
+

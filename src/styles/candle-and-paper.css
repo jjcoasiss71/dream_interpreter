@@ -1,0 +1,548 @@
+/* ===========================================================================
+   SCENE CONTENT — the candle is grounded on the desk, BEHIND the paper, so
+   the paper occludes its base and only the flame + upper taper rise above it.
+   =========================================================================== */
+.scene-content {
+  position: relative;
+}
+/* the overlay candle + its glow are gone from the live scene */
+.scene-content .accent-stage {
+  display: none;
+}
+/* A single sheet of paper, centered in front of the candle — sized to roughly
+   match the parchment in the scene photo, with square (un-rounded) corners. */
+.scene-content .paper-sheet {
+  position: relative;
+  z-index: 2;
+  width: min(96%, 940px);
+  min-height: 740px;
+  margin: 6px auto 0;
+  border-radius: 0;
+  overflow: hidden; /* content reveals as the paper animates its height */
+  display: flex;
+  flex-direction: column;
+}
+.sheet-face {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.sheet-face .dream-input {
+  flex: 1;
+  resize: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Ambient glow — candlelight pool (Nightfall) / morning wash (Daybreak),
+   fixed scenery, cross-fading on mode switch.
+   --------------------------------------------------------------------------- */
+.page-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 800ms ease-in-out, filter 2600ms ease;
+}
+
+/* STEP 2 — the candle sits above the letter; its light pools downward.
+   The pool breathes in time with the flame's flicker. */
+.page-glow--night {
+  background: radial-gradient(
+    90% 55% at 50% 40%,
+    var(--night-glow-core) 0%,
+    var(--night-glow-bleed) 30%,
+    transparent 64%
+  );
+  animation: candleLife 8s ease-in-out infinite;
+}
+
+.page-glow--day {
+  background:
+    radial-gradient(130% 70% at 50% 0%, var(--day-glow-core) 0%, transparent 60%),
+    radial-gradient(100% 100% at 50% 30%, var(--day-glow-mist) 0%, transparent 70%);
+}
+
+body[data-mode="nightfall"] .page-glow--day {
+  opacity: 0;
+}
+body[data-mode="daybreak"] .page-glow--night {
+  opacity: 0;
+}
+
+/* gentle breathing for most of the loop, then a sudden draft-gutter near the
+   end where the light dips hard and the shadows lurch — quiet dread */
+@keyframes candleLife {
+  0% {
+    opacity: 1;
+  }
+  14% {
+    opacity: 0.9;
+  }
+  28% {
+    opacity: 1;
+  }
+  44% {
+    opacity: 0.88;
+  }
+  58% {
+    opacity: 0.98;
+  }
+  74% {
+    opacity: 0.92;
+  }
+  84% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 0.4;
+  }
+  88.5% {
+    opacity: 0.92;
+  }
+  90.5% {
+    opacity: 0.52;
+  }
+  93% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Shell / layout
+   --------------------------------------------------------------------------- */
+.shell {
+  position: relative;
+  z-index: 2;
+  max-width: var(--shell-width);
+  margin: 0 auto;
+  padding: 150px 1.75rem 5rem;
+  opacity: 0;
+  /* page-in, then a slow idle breath as if you're hunched over the desk */
+  animation: pageIn 1.5s ease forwards,
+    sceneBreathe 9s ease-in-out 1.5s infinite;
+}
+
+@keyframes pageIn {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sceneBreathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.005);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   STEP 2 — Candle (the light source), now centered above the letter.
+   --------------------------------------------------------------------------- */
+.accent-stage {
+  position: relative;
+  height: 165px;
+  margin: 0.25rem auto 1.25rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* The candle — an antique brass chamberstick (a candle in a dish-holder with
+   a loop handle), the kind used before electric light. Stood on the desk and
+   seen at a slight downward tilt: upright body, elliptical base. */
+.candle {
+  position: relative;
+  width: 150px;
+  height: 165px;
+}
+/* centered layers; the flame uses margins so its flicker transform stays free */
+.candle > * {
+  position: absolute;
+  left: 50%;
+}
+
+/* soft diffuse halo the flame throws into the room (sits on the photo flame) */
+.candle-halo {
+  bottom: 40px;
+  width: 210px;
+  height: 210px;
+  margin-left: -105px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--flame-mid) 22%, transparent) 0%,
+    transparent 62%
+  );
+  animation: candleLife 8s ease-in-out infinite;
+  transition: opacity 600ms ease;
+}
+
+/* finger-loop handle on the right of the dish (a ring you slip a finger in) */
+.holder-handle {
+  bottom: 8px;
+  margin-left: 50px;
+  width: 30px;
+  height: 34px;
+  border: 5px solid #4f4024;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6),
+    inset -2px -2px 3px rgba(0, 0, 0, 0.55),
+    0 3px 7px -2px rgba(0, 0, 0, 0.7);
+}
+
+/* the wide dish base sitting on the desk (ellipse — the tilted view) */
+.holder-dish {
+  bottom: 4px;
+  width: 134px;
+  height: 40px;
+  margin-left: -67px;
+  border-radius: 50%;
+  /* very old, used bronze — dark and dull, not bright brass */
+  background: radial-gradient(
+    ellipse at 50% 34%,
+    #7a6536 0%,
+    #574627 46%,
+    #382c1a 80%,
+    #221b10 100%
+  );
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.82),
+    inset 0 2px 3px rgba(206, 186, 138, 0.16);
+}
+
+/* bronze socket cup that grips the candle — wider, shorter */
+.holder-socket {
+  bottom: 26px;
+  width: 42px;
+  height: 22px;
+  margin-left: -21px;
+  border-radius: 5px 5px 4px 4px;
+  background: linear-gradient(
+    90deg,
+    #241c10 0%,
+    #564525 30%,
+    #837038 50%,
+    #564525 72%,
+    #201910 100%
+  );
+  box-shadow: inset 0 -4px 6px -3px rgba(0, 0, 0, 0.6);
+}
+.holder-socket::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 3px;
+  right: 3px;
+  height: 8px;
+  border-radius: 50%;
+  background: #241a0c;
+}
+
+/* the ivory wax taper — thicker and shorter */
+.taper {
+  bottom: 42px;
+  width: 32px;
+  height: 78px;
+  margin-left: -16px;
+  border-radius: 9px 9px 3px 3px;
+  background: linear-gradient(
+    90deg,
+    #9c8a64 0%,
+    #e9dcbd 26%,
+    #f6ecd2 50%,
+    #d8c79c 74%,
+    #8f7d57 100%
+  );
+  box-shadow: inset 0 0 14px -8px rgba(0, 0, 0, 0.5);
+}
+/* a little run of melted wax down the side */
+.taper::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 6px;
+  width: 6px;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, #f6ecd2, #cdbb90);
+  opacity: 0.85;
+}
+/* the flame's warm light catching the top of the taper */
+.taper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    to top,
+    transparent 62%,
+    color-mix(in srgb, var(--flame-mid) 42%, transparent)
+  );
+}
+
+.wick {
+  bottom: 118px;
+  width: 2.5px;
+  height: 8px;
+  margin-left: -1.25px;
+  border-radius: 1px;
+  background: linear-gradient(to top, #1a0e04, #3a2410);
+}
+
+/* the flame — an upright teardrop, small relative to the thick wax */
+.flame {
+  bottom: 122px;
+  width: 16px;
+  height: 34px;
+  margin-left: -8px;
+  border-radius: 50% 50% 48% 52% / 80% 80% 30% 30%;
+  background: radial-gradient(
+    ellipse 62% 72% at 50% 78%,
+    #fff6cf 0%,
+    #ffe08a 20%,
+    #ffae45 46%,
+    #ff7a1e 70%,
+    rgba(255, 100, 20, 0) 100%
+  );
+  filter: blur(0.4px);
+  transform-origin: 50% 100%;
+  box-shadow: 0 0 20px 6px color-mix(in srgb, var(--flame-mid) 52%, transparent),
+    0 -4px 46px 14px color-mix(in srgb, var(--flame-edge) 28%, transparent);
+  animation: flicker 2.4s ease-in-out infinite;
+  transition: opacity 400ms ease;
+}
+/* faint blue base where the flame meets the wick */
+.flame::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 7px;
+  height: 9px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 170, 255, 0.5), transparent 70%);
+  filter: blur(1px);
+}
+/* bright inner core, flickering on its own beat */
+.flame-core {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 7px;
+  height: 19px;
+  margin-left: -3.5px;
+  border-radius: 50% 50% 46% 54% / 74% 74% 32% 32%;
+  background: radial-gradient(
+    ellipse 60% 70% at 50% 74%,
+    #fffdf2 0%,
+    #fff0c0 38%,
+    rgba(255, 210, 120, 0.5) 70%,
+    transparent 100%
+  );
+  filter: blur(0.3px);
+  animation: flickerCore 1.7s ease-in-out infinite;
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(1.03, 0.98) translateY(-0.5px);
+    opacity: 0.92;
+  }
+  40% {
+    transform: scale(0.97, 1.04) translateX(0.6px);
+    opacity: 0.84;
+  }
+  60% {
+    transform: scale(1.02, 0.98) translateX(-0.5px);
+    opacity: 0.97;
+  }
+  80% {
+    transform: scale(0.99, 1.02) translateY(-0.4px);
+    opacity: 0.9;
+  }
+}
+@keyframes flickerCore {
+  0%,
+  100% {
+    transform: scaleY(1) translateY(0);
+    opacity: 0.95;
+  }
+  30% {
+    transform: scaleY(1.1) translateY(-1px);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleY(0.92) translateX(0.4px);
+    opacity: 0.84;
+  }
+}
+
+/* Smoke (Daybreak) — a thin wisp coiling up from the spent wick. */
+.smoke {
+  bottom: 120px;
+  width: 40px;
+  height: 80px;
+  margin-left: -20px;
+  overflow: visible;
+  transition: opacity 400ms ease 400ms;
+}
+.smoke path {
+  fill: none;
+  stroke: var(--smoke-stroke);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 60 240;
+  filter: blur(1.4px);
+  animation: smokeRise 3.8s linear infinite;
+}
+.smoke-sway {
+  transform-origin: 50% 100%;
+  animation: smokeSway 4s ease-in-out infinite;
+}
+@keyframes smokeRise {
+  0% {
+    stroke-dashoffset: 280;
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.55;
+  }
+  78% {
+    opacity: 0.3;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes smokeSway {
+  0%,
+  100% {
+    transform: translateX(-1.5px) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateX(1.5px) rotate(1.5deg);
+  }
+}
+
+body[data-mode="daybreak"] .flame,
+body[data-mode="daybreak"] .candle-halo {
+  opacity: 0;
+}
+body[data-mode="nightfall"] .smoke {
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Header
+   --------------------------------------------------------------------------- */
+.masthead {
+  text-align: center;
+  margin-bottom: 1.1rem;
+}
+.title {
+  font-family: var(--font-heading), "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-size: clamp(2.6rem, 8vw, 3.6rem);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  margin: 0;
+  color: var(--text-primary);
+  text-shadow: 0 0 38px color-mix(in srgb, var(--glow-primary) 22%, transparent);
+  transition: text-shadow 800ms ease-in-out;
+}
+.subtitle {
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin: 1.1rem auto 0;
+  max-width: 38ch;
+  transition: color 800ms ease-in-out;
+}
+
+/* ---------------------------------------------------------------------------
+   Mode toggle
+   --------------------------------------------------------------------------- */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 auto 1.4rem;
+}
+.toggle-label {
+  font-family: var(--font-heading), serif;
+  font-size: 0.86rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  transition: color 500ms ease, text-shadow 500ms ease;
+}
+body[data-mode="nightfall"] .toggle-label--night,
+body[data-mode="daybreak"] .toggle-label--day {
+  color: var(--text-primary);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--glow-primary) 60%, transparent);
+}
+.toggle {
+  position: relative;
+  width: 58px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 22%, transparent);
+  background: #0d0905;
+  cursor: pointer;
+  padding: 0;
+  flex: 0 0 auto;
+  transition: box-shadow 600ms ease, border-color 600ms ease;
+}
+body[data-mode="nightfall"] .toggle {
+  box-shadow: inset 10px 0 16px -10px
+    color-mix(in srgb, var(--glow-primary) 70%, transparent);
+}
+body[data-mode="daybreak"] .toggle {
+  box-shadow: inset -10px 0 16px -10px
+    color-mix(in srgb, var(--glow-primary) 70%, transparent);
+}
+.toggle-knob {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: radial-gradient(
+    circle at 40% 35%,
+    color-mix(in srgb, var(--glow-primary) 85%, var(--text-primary)) 0%,
+    var(--glow-primary-deep) 70%
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 55%, transparent);
+  transition: left 600ms cubic-bezier(0.4, 0, 0.2, 1), background 600ms ease,
+    box-shadow 600ms ease;
+}
+body[data-mode="daybreak"] .toggle-knob {
+  left: 34px;
+}
+

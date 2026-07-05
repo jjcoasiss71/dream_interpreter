@@ -1,0 +1,63 @@
+/* ---------------------------------------------------------------------------
+   Reduced motion — let the room be still. Faint becomes a plain crossfade.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .shell,
+  .flame,
+  .flame-core,
+  .candle-halo,
+  .candle-photo,
+  .parchment::after,
+  .scene-flame,
+  .scene-hint,
+  .grain,
+  .smoke path,
+  .smoke-sway,
+  .reveal-line,
+  .symbol-particle,
+  .dream-vanishing,
+  .page-glow--night,
+  .cine-text,
+  .cine-nib {
+    animation: none !important;
+  }
+  .sheet-result .reveal-line {
+    animation: none !important;
+  }
+  /* keep the turn instant (still reveals the interpretation), no enlarge */
+  .leaf--dream {
+    transition: none !important;
+  }
+  .viewport[data-phase="fainting"] .journal {
+    transition: none !important;
+    transform: none !important;
+  }
+  .stage {
+    transition: none !important;
+  }
+  .grain {
+    opacity: 0.04 !important;
+  }
+  .shell,
+  .reveal-line,
+  .cine-text {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .camera,
+  .desk,
+  .page-glow,
+  .cine-stage,
+  .cine-fold {
+    transition: opacity 600ms ease !important;
+  }
+  .viewport[data-phase="fainting"] .camera,
+  .viewport[data-phase="dreamworld"] .camera {
+    transform: none !important;
+    filter: none !important;
+  }
+  .viewport[data-phase="dreamworld"] .camera {
+    opacity: 0 !important;
+  }
+}

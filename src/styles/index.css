@@ -1,0 +1,21 @@
+/* ===========================================================================
+   Dream Interpreter — dual-mode immersive UI
+   First-person at an old desk, writing a letter by candlelight (Nightfall) /
+   in morning fog (Daybreak). Seal & send the letter, then fall into the dream.
+   Every adaptive value is a custom property driven by [data-mode] on <body>.
+   Component styles never hardcode color — they read from the tokens below.
+   Import order defines the cascade — do not reorder.
+   =========================================================================== */
+@import "./preflight.css" layer(base);
+@import "./tokens.css";
+@import "./scene.css";
+@import "./header.css";
+@import "./journal-view.css";
+@import "./candle-and-paper.css";
+@import "./letter.css";
+@import "./send-cinematic.css";
+@import "./journal-leaves.css";
+@import "./atmosphere.css";
+@import "./dream.css";
+@import "./mobile.css";
+@import "./reduced-motion.css";

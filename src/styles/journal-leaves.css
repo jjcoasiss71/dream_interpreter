@@ -1,0 +1,267 @@
+/* ===========================================================================
+   THE JOURNAL — two parchment leaves with a page-turn.
+   Page 1 (the dream) is preserved and turns away to reveal page 2 (the
+   interpretation); you can always turn back. Reuses the --paper tokens.
+   =========================================================================== */
+.journal {
+  position: relative;
+  margin-top: 0.5rem;
+  perspective: 2400px;
+}
+
+/* shared parchment look — lit by the candle like the rest of the scene:
+   a warm catch where the flame is closest (top), a downward cast, and the
+   page falling into shadow toward the bottom and edges. */
+.parchment {
+  position: relative;
+  border-radius: 6px 8px 7px 9px;
+  background-color: var(--paper);
+  background-image:
+    /* the bright catch of candlelight nearest the flame (top) */
+    radial-gradient(125% 80% at 50% -16%, var(--paper-glow), transparent 52%),
+    /* directional cast warm at the top, sinking to shadow at the bottom */
+    linear-gradient(
+      to bottom,
+      var(--paper-cast) 0%,
+      transparent 34%,
+      transparent 60%,
+      var(--paper-shade) 100%
+    ),
+    /* ruling lines */
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(1.9em - 1px),
+      var(--paper-line) calc(1.9em - 1px),
+      var(--paper-line) 1.9em
+    );
+  background-position: center top, center, 0 1.6rem;
+  box-shadow: inset 0 0 90px -30px var(--paper-edge),
+    0 16px 40px -20px rgba(0, 0, 0, 0.75);
+  color: var(--ink);
+  padding: 1.8rem 1.75rem 2rem;
+}
+/* page content sits above the living-light layer below */
+.parchment > * {
+  position: relative;
+  z-index: 1;
+}
+/* a warm light cast on the paper that breathes and gutters WITH the flame.
+   z-index 0 keeps it under the text (blends with the paper, not the ink). */
+.parchment::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 78% at 50% -12%,
+    color-mix(in srgb, var(--glow-primary) 24%, transparent),
+    transparent 55%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0;
+}
+body[data-mode="nightfall"] .parchment::after {
+  opacity: 1;
+  animation: candleLife 8s ease-in-out infinite;
+}
+/* If a paper.png is present, it becomes the paper material; the candlelight
+   catch + cast stay layered above it (ruling lines drop — bring your own). */
+body[data-paper="photo"] .parchment {
+  background-image: radial-gradient(
+      125% 80% at 50% -16%,
+      var(--paper-glow),
+      transparent 52%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--paper-cast) 0%,
+      transparent 34%,
+      transparent 60%,
+      var(--paper-shade) 100%
+    ),
+    url("/paper.jpg");
+  background-size: auto, auto, cover;
+  background-position: center top, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+}
+
+/* compose: the dream leaf is the only page, in normal flow */
+.journal[data-stage="compose"] .leaf--dream {
+  position: relative;
+}
+.journal[data-stage="compose"] .leaf--dream .leaf__face {
+  position: relative;
+}
+.journal[data-stage="compose"] .leaf--dream .leaf__back {
+  display: none;
+}
+
+/* reading: the interpretation defines the height; the dream page overlays it
+   and turns away on its left edge to reveal it */
+.journal[data-stage="reading"] .leaf--reading {
+  position: relative;
+  z-index: 1;
+}
+.journal[data-stage="reading"] .leaf--dream {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1100ms cubic-bezier(0.62, 0, 0.3, 1);
+}
+.journal[data-stage="reading"] .leaf--dream .leaf__face,
+.journal[data-stage="reading"] .leaf--dream .leaf__back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.journal[data-stage="reading"] .leaf--dream .leaf__back {
+  transform: rotateY(180deg);
+}
+.journal[data-stage="reading"][data-turned="true"] .leaf--dream {
+  transform: rotateY(-172deg);
+}
+
+/* the dream page is a flex column (textarea + seal, or read-back + flip) */
+.leaf__face {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+/* the textarea blends into the paper — no double paper */
+.sheet-face .dream-input {
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+}
+.sheet-face .dream-input:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+.sheet-face .seal-button {
+  align-self: center;
+}
+
+/* the written dream, glowing then burning away on the page */
+.dream-vanishing {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 1.95rem;
+  line-height: 1.9em;
+  color: var(--ink);
+  -webkit-text-stroke: 0.6px transparent;
+  /* the ink words become glowing outlines of light, hold, then dissolve */
+  animation: dreamGlow 0.9s ease forwards, dreamErase 0.9s ease 3s forwards;
+}
+@keyframes dreamGlow {
+  0% {
+    color: var(--ink);
+    -webkit-text-stroke-color: transparent;
+    text-shadow: none;
+  }
+  100% {
+    /* hollow letters: only the luminous outline remains */
+    color: transparent;
+    -webkit-text-stroke-color: #ffe6a0;
+    text-shadow: 0 0 4px #fff6da, 0 0 12px #ffe08a,
+      0 0 28px rgba(255, 200, 90, 0.8), 0 0 60px rgba(255, 180, 60, 0.45);
+  }
+}
+@keyframes dreamErase {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(-10px);
+  }
+}
+
+/* turn-the-page affordances */
+.leaf-flip {
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--font-heading), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 68%, transparent);
+  transition: color 400ms ease, text-shadow 400ms ease;
+}
+.leaf-flip:hover {
+  color: var(--ink);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 50%, transparent);
+}
+
+.leaf-actions {
+  margin-top: 2.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+}
+.leaf-links {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+}
+.leaf-links .leaf-flip {
+  align-self: auto;
+}
+
+/* "Enter Dream Again" — a wax seal / ritual stamp, not a button */
+.dream-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.dream-seal__glyph {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 42% 36%,
+    color-mix(in srgb, var(--wax) 70%, #2a0c04),
+    var(--wax) 72%
+  );
+  color: color-mix(in srgb, var(--glow-primary) 72%, var(--text-primary));
+  font-size: 1.8rem;
+  line-height: 1;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow-primary) 28%, transparent),
+    inset 0 2px 7px rgba(0, 0, 0, 0.55), 0 6px 18px -6px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 500ms ease, transform 500ms ease;
+}
+.dream-seal:hover .dream-seal__glyph {
+  transform: scale(1.05) rotate(-3deg);
+  box-shadow: 0 0 28px -2px color-mix(in srgb, var(--glow-primary) 55%, transparent),
+    inset 0 2px 7px rgba(0, 0, 0, 0.55);
+}
+.dream-seal__label {
+  font-family: var(--font-heading), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 80%, transparent);
+}
+
