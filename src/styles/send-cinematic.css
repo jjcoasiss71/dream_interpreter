@@ -229,6 +229,22 @@
   font-size: 1.9rem;
   line-height: 1.95;
 }
+/* the two parts of the reading: the meaning, then what it foretells */
+.reading-part-title {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-title), var(--font-heading), serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--ink) 82%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  padding-bottom: 0.5rem;
+}
+.reading-part-title--omen {
+  margin-top: 2.4rem;
+}
+.interpretation--omen {
+  font-style: italic;
+}
 .reveal-line {
   display: block;
   margin: 0 0 0.85rem;

@@ -33,6 +33,11 @@ export const interpretRequestSchema = z.object({
 export type InterpretRequest = z.infer<typeof interpretRequestSchema>;
 
 export type InterpretResponse = {
+  /** Part one — what the dream means, grounded in the sourced frameworks. */
+  meaning: string;
+  /** Part two — what the dream may foretell: gentle, forward-looking reading. */
+  foretelling: string;
+  /** Both parts as one flat text (stored in the on-device journal). */
   interpretation: string;
   matchedSymbols: string[];
   frameworksUsed: string[];

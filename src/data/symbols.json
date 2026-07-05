@@ -1,12 +1,12 @@
 {
   "_README": {
     "whatIsThis": "This file holds specific DREAM SYMBOLS / THEMES (water, falling, teeth, being chased...). When a user describes a dream, the app searches this file for matching symbols, then hands the matches (with their per-framework perspectives and sources) to an LLM to phrase a grounded interpretation.",
-    "howMatchingWorks": "The app scans the user's dream text for each symbol's 'label' and any of its 'aliases'. For example, the words 'ocean', 'flood', or 'drowning' should all match the 'water' symbol. More aliases = better matching.",
+    "howMatchingWorks": "The app scans the user's dream text for each symbol's 'label' and any of its 'aliases' as whole words (plurals and simple verb forms are tolerated). For example, the words 'ocean', 'flood', or 'drowning' should all match the 'water' symbol. More aliases = better matching — but keep aliases as real words/phrases, never short fragments.",
     "frameworkLink": "Each perspective's 'framework' value matches an 'id' in frameworks.json (e.g. 'jungian', 'continuity-hypothesis'). That is how the two files connect.",
     "honestyRule": "Every perspective is a SOURCED viewpoint, never a fixed 'this symbol = that meaning' fact. Always attribute to the framework.",
     "howToEditSafely": "Add new symbols inside the 'symbols' list. Copy an existing entry as a template, keep the commas between entries, and keep all text in \"double quotes\".",
-    "version": "0.1.0",
-    "lastUpdated": "2026-06-21"
+    "version": "0.2.0",
+    "lastUpdated": "2026-07-06"
   },
   "symbols": [
     {
@@ -19,9 +19,14 @@
         "lake",
         "flood",
         "drowning",
+        "drown",
         "rain",
         "waves",
         "swimming",
+        "swim",
+        "underwater",
+        "pool",
+        "pond",
         "tide"
       ],
       "perspectives": [
@@ -31,6 +36,11 @@
           "source": "Jung, C. G. (1964). Man and His Symbols."
         },
         {
+          "framework": "freudian",
+          "meaning": "Classically linked to birth, the womb, and the origins of life; dreams of being in or emerging from water were read as birth-symbolism and deep memory.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
           "framework": "continuity-hypothesis",
           "meaning": "May simply reflect waking emotional concerns or recent experiences involving water, stress, or feeling 'overwhelmed' — rather than carrying fixed symbolism.",
           "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
@@ -38,26 +48,52 @@
       ]
     },
     {
-      "id": "falling",
-      "label": "Falling",
+      "id": "tidal-wave",
+      "label": "Tidal wave / tsunami",
       "aliases": [
-        "fall",
-        "fell",
-        "falling down",
-        "dropping",
-        "plummeting",
-        "losing my balance"
+        "tsunami",
+        "tidal wave",
+        "giant wave",
+        "huge wave",
+        "wall of water"
       ],
       "perspectives": [
         {
+          "framework": "jungian",
+          "meaning": "An image of unconscious contents rising with overwhelming force — emotion that has been held back gathering into something that can no longer be ignored.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
           "framework": "continuity-hypothesis",
-          "meaning": "Often linked to waking feelings of insecurity, loss of control, or instability in some area of life (work, a relationship, finances).",
+          "meaning": "Commonly reported during periods of mounting waking pressure — a deadline, a diagnosis, a relationship strain — when the dreamer feels a situation is about to break over them.",
           "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
         },
         {
+          "framework": "threat-simulation",
+          "meaning": "Natural-disaster dreams fit the mind's threat-rehearsal function: simulating escape from large-scale danger in a safe setting.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "falling",
+      "label": "Falling",
+      "aliases": ["fell", "falling", "plummet", "dropped from", "fall from"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Often read as compensation — a warning from the psyche against inflated ambitions or living 'too high above' one's real ground.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Falling is among the most ancient physical dangers; dreaming it repeatedly may be the threat-rehearsal system practicing a primal hazard.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        },
+        {
           "framework": "sleep-science",
-          "meaning": "Sudden falling sensations near sleep onset can relate to hypnic jerks and the body's transition into sleep, so the imagery may be partly physiological rather than symbolic.",
-          "source": "Walker, M. (2017). Why We Sleep."
+          "meaning": "Falling sensations often coincide with hypnic jerks and vestibular signals during sleep transitions — the brain narrating an inner-ear sensation.",
+          "source": "Hobson, J. A. (2002). Dreaming: An Introduction to the Science of Sleep."
         }
       ]
     },
@@ -67,21 +103,26 @@
       "aliases": [
         "chased",
         "chasing me",
-        "running away",
-        "being followed",
         "pursued",
-        "escaping",
+        "running away",
+        "running from",
+        "hunted",
         "someone after me"
       ],
       "perspectives": [
         {
           "framework": "threat-simulation",
-          "meaning": "A classic example of the brain rehearsing threat avoidance — practicing recognizing and escaping danger in a safe simulated environment.",
-          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences."
+          "meaning": "The classic threat-simulation dream: rehearsing escape from a pursuer is argued to be an evolved practice-run for real dangers.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "The pursuer is often read as the Shadow — a disowned part of oneself demanding attention; turning to face it is taken as the beginning of integration.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
         },
         {
           "framework": "continuity-hypothesis",
-          "meaning": "May reflect a waking situation the dreamer feels pursued by or is avoiding — a deadline, a confrontation, or an emotion they don't want to face.",
+          "meaning": "Chase dreams track waking avoidance — a conversation, task, or feeling the dreamer is actively evading tends to return as pursuit at night.",
           "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
         }
       ]
@@ -91,21 +132,26 @@
       "label": "Teeth falling out",
       "aliases": [
         "teeth",
-        "losing teeth",
-        "tooth fell out",
+        "tooth",
+        "teeth falling",
         "teeth crumbling",
-        "broken teeth"
+        "losing teeth"
       ],
       "perspectives": [
         {
           "framework": "freudian",
-          "meaning": "Classically interpreted in psychoanalytic tradition as relating to anxiety, though specific readings vary and are widely debated.",
+          "meaning": "A classical dream symbol tied to anxieties about loss, punishment, and bodily potency — one of the specimen dreams Freud returned to repeatedly.",
           "source": "Freud, S. (1900). The Interpretation of Dreams."
         },
         {
           "framework": "continuity-hypothesis",
-          "meaning": "Research links these dreams to waking dental irritation or to general anxiety and concerns about appearance, self-image, or loss — consistent with everyday stressors.",
+          "meaning": "Correlates in studies with waking concerns about appearance, aging, competence, or saying the wrong thing — losing face, almost literally.",
           "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "sleep-science",
+          "meaning": "One line of research links teeth dreams to real dental sensations during sleep (clenching, grinding) that the dreaming brain weaves into imagery.",
+          "source": "Hobson, J. A. (2002). Dreaming: An Introduction to the Science of Sleep."
         }
       ]
     },
@@ -113,48 +159,53 @@
       "id": "flying",
       "label": "Flying",
       "aliases": [
-        "fly",
+        "flying",
         "flew",
-        "floating",
-        "soaring",
+        "floating above",
         "levitating",
-        "lifting off"
+        "soaring",
+        "hovering"
       ],
       "perspectives": [
         {
-          "framework": "jungian",
-          "meaning": "Can be read as a desire for transcendence, freedom, or rising above a situation; sometimes a sense of liberation or a new perspective.",
-          "source": "Jung, C. G. (1974). Dreams."
+          "framework": "freudian",
+          "meaning": "Read as a wish-fulfilment of freedom and exhilaration, with roots in childhood sensations of being swung and lifted.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
         },
         {
-          "framework": "continuity-hypothesis",
-          "meaning": "May reflect waking feelings of freedom, confidence, or release — or a wish for escape from current pressures.",
-          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+          "framework": "jungian",
+          "meaning": "Rising above the landscape suggests a wish for perspective or transcendence — though flying too high invites the compensating fall.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "sleep-science",
+          "meaning": "Flying sensations may arise from the brain constructing a body-model without gravity feedback during REM — weightlessness narrated as flight.",
+          "source": "Hobson, J. A. (2002). Dreaming: An Introduction to the Science of Sleep."
         }
       ]
     },
     {
-      "id": "exam-or-test",
+      "id": "exam",
       "label": "Taking an exam / being tested",
       "aliases": [
         "exam",
         "test",
+        "quiz",
         "unprepared",
-        "failing a test",
-        "didn't study",
-        "school exam",
-        "deadline"
+        "failing the test",
+        "final exam",
+        "examination"
       ],
       "perspectives": [
         {
-          "framework": "continuity-hypothesis",
-          "meaning": "Strongly tied to waking-life situations where the dreamer feels evaluated, judged, or unprepared — common during periods of performance pressure.",
-          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+          "framework": "freudian",
+          "meaning": "Freud noted examination dreams occur to people who already passed — read as consolation: 'you were anxious before and it turned out fine.'",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
         },
         {
-          "framework": "threat-simulation",
-          "meaning": "Can be seen as rehearsing a high-stakes social-evaluative challenge, a milder 'threat' the mind practices coping with.",
-          "source": "Revonsuo, A. et al. (2015). Social simulation theory."
+          "framework": "continuity-hypothesis",
+          "meaning": "Being tested reappears whenever waking life stages an evaluation — a review, an audition, a judgment by others — long after school ends.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
         }
       ]
     },
@@ -162,45 +213,56 @@
       "id": "death",
       "label": "Death (of self or others)",
       "aliases": [
+        "died",
         "dying",
-        "dead",
         "death",
-        "someone died",
-        "funeral",
-        "I died"
+        "dead body",
+        "my funeral",
+        "passed away",
+        "corpse"
       ],
       "perspectives": [
         {
           "framework": "jungian",
-          "meaning": "Often read symbolically as transformation, the ending of one phase, or change — rather than literal death.",
-          "source": "Jung, C. G. (1974). Dreams."
+          "meaning": "Rarely literal: death in dreams marks the end of a phase or attitude so a new one can begin — the psyche's image for transformation.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "freudian",
+          "meaning": "Dreams of a loved one's death were traced to buried childhood ambivalence — old, censored feelings surfacing in distorted form, not present wishes.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
         },
         {
           "framework": "continuity-hypothesis",
-          "meaning": "May reflect waking concerns about loss, change, grief, or a relationship/situation that is 'ending' in some way.",
+          "meaning": "Often follows waking encounters with mortality — illness in the family, anniversaries, news — continuing the day's emotional business.",
           "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
         }
       ]
     },
     {
-      "id": "nudity",
+      "id": "naked-in-public",
       "label": "Being naked in public",
       "aliases": [
         "naked",
         "nude",
         "no clothes",
-        "undressed in public",
-        "exposed"
+        "undressed",
+        "exposed in public"
       ],
       "perspectives": [
         {
           "framework": "freudian",
-          "meaning": "Traditionally connected to exposure, vulnerability, and embarrassment in psychoanalytic readings.",
+          "meaning": "The classic embarrassment dream: exhibition wishes from childhood colliding with adult shame — the onlookers' strange indifference betrays the wish beneath.",
           "source": "Freud, S. (1900). The Interpretation of Dreams."
         },
         {
+          "framework": "jungian",
+          "meaning": "Losing one's clothes is losing the Persona — the social mask — and being seen as one actually is; the dream tests how much of the real self is showable.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
           "framework": "continuity-hypothesis",
-          "meaning": "Often linked to waking feelings of vulnerability, being 'exposed,' judged, or unprepared in a social setting.",
+          "meaning": "Tracks waking vulnerability: new jobs, public speaking, secrets at risk — situations where exposure is the live concern.",
           "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
         }
       ]
@@ -211,38 +273,1689 @@
       "aliases": [
         "house",
         "home",
-        "rooms",
         "building",
-        "my childhood home",
-        "a strange house"
+        "mansion",
+        "apartment",
+        "rooms I didn't know",
+        "basement",
+        "attic"
       ],
       "perspectives": [
         {
           "framework": "jungian",
-          "meaning": "Sometimes read as a symbol of the self or psyche, with different rooms representing different aspects of the personality or memory.",
-          "source": "Jung, C. G. (1964). Man and His Symbols."
+          "meaning": "Jung's own dream of a many-storied house became his model of the psyche: upper floors as consciousness, cellars as the deep unconscious — discovering new rooms is discovering unlived parts of oneself.",
+          "source": "Jung, C. G. (1963). Memories, Dreams, Reflections."
         },
         {
+          "framework": "freudian",
+          "meaning": "Buildings and their facades were read as body-symbolism; entrances, stairways, and hidden rooms carried displaced bodily meaning.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Settings are a core content category: whether the dream-house is familiar or strange, intact or decaying, is scored as meaningful variation across dream series.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "childhood-home",
+      "label": "Childhood home",
+      "aliases": [
+        "childhood home",
+        "old house",
+        "grew up in",
+        "my old room",
+        "parents' house"
+      ],
+      "perspectives": [
+        {
           "framework": "continuity-hypothesis",
-          "meaning": "Familiar places like a home often reflect everyday memory and waking concerns about family, security, or a specific life context.",
-          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+          "meaning": "Long-running dream series show people return to formative places for decades; the childhood home stages present concerns inside the oldest emotional architecture.",
+          "source": "Domhoff, G. W. (1996). Finding Meaning in Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "Returning to the first home often accompanies questions of origin and identity — the psyche revisiting its foundations when the present self is being rebuilt.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
         }
       ]
     },
     {
       "id": "snake",
       "label": "Snake",
-      "aliases": ["snake", "snakes", "serpent", "bitten by a snake"],
+      "aliases": ["snake", "serpent", "viper", "cobra", "python"],
       "perspectives": [
         {
           "framework": "jungian",
-          "meaning": "A rich archetypal image associated with transformation, instinct, danger, or healing depending on context; meaning is highly personal.",
+          "meaning": "An ancient, double-edged archetype: instinctual energy, healing, and renewal (the shed skin) as much as danger — how the dream-snake behaves matters more than its presence.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "freudian",
+          "meaning": "The most famous of the classical sexual symbols in the psychoanalytic reading of dreams.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Snakes are an evolutionarily ancient predator of primates; their outsized frequency in dreams worldwide fits innate threat-rehearsal.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "spider",
+      "label": "Spider",
+      "aliases": ["spider", "spiders", "spiderweb", "tarantula", "cobweb"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The weaver at the center of a web has been read as an image of entanglement — patterns, often familial, in which the dreamer feels caught.",
           "source": "Jung, C. G. (1964). Man and His Symbols."
         },
         {
           "framework": "threat-simulation",
-          "meaning": "Snakes are a recurring evolutionary threat image; their appearance fits the brain rehearsing fear of an ancestral danger.",
-          "source": "Revonsuo, A. (2000). The reinterpretation of dreams."
+          "meaning": "Like snakes, spiders belong to the small set of ancestral dangers that appear in dreams far more often than modern hazards — a signature of evolved threat imagery.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "For many dreamers simply continuous with waking fear of spiders; for others it tracks a situation that feels sticky, patient, and quietly closing in.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "dog",
+      "label": "Dog",
+      "aliases": ["dog", "puppy", "hound"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The companion animal often carries instinct in its loyal, domesticated form; a threatening dog suggests instinct turned against the dreamer by neglect.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Animals are a scored character class; whether animal characters act friendly or aggressive toward the dreamer is one of the strongest content signals.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Usually continuous with real relationships — a pet, a friend's loyalty, or a bond currently in question.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "cat",
+      "label": "Cat",
+      "aliases": ["cat", "kitten", "feline"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Often read as the independent, feminine-coded side of instinct — affection that cannot be commanded; a cat's behavior in the dream mirrors one's relation to autonomy.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Most often continuous with actual cats and caretaking; otherwise tracks feelings about independence and aloofness in a current relationship.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "bird",
+      "label": "Bird",
+      "aliases": [
+        "bird",
+        "birds",
+        "crow",
+        "raven",
+        "owl",
+        "eagle",
+        "dove",
+        "sparrow"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Creatures of the air are classic spirit- and thought-symbols: messengers between the everyday and something higher; a caged or injured bird reads as grounded aspiration.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Often incorporates recent sightings or media; when emotionally charged, tends to track hopes about freedom or escape from a confining situation.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "predator",
+      "label": "Predatory animal (lion, tiger, bear, wolf)",
+      "aliases": [
+        "lion",
+        "tiger",
+        "bear",
+        "wolf",
+        "wolves",
+        "panther",
+        "leopard",
+        "predator"
+      ],
+      "perspectives": [
+        {
+          "framework": "threat-simulation",
+          "meaning": "Large predators are the prototype of ancestral threat; dreaming them — especially being stalked — is the threat-simulation system running its oldest scenario.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "Big animals frequently embody powerful instinct or affect the dreamer has not yet made peace with — rage, hunger, wildness — approaching in animal form.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Animal aggression toward the dreamer is a distinct scored category, more frequent in children's dreams and in times of felt vulnerability.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "shark",
+      "label": "Shark",
+      "aliases": ["shark", "sharks"],
+      "perspectives": [
+        {
+          "framework": "threat-simulation",
+          "meaning": "A predator that strikes from beneath a calm surface — threat imagery for danger hidden under an apparently smooth situation.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "Because water so often stands for the unconscious, what swims in it armed with teeth is read as an emotion below awareness capable of wounding.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        }
+      ]
+    },
+    {
+      "id": "insects",
+      "label": "Insects / swarm",
+      "aliases": [
+        "insects",
+        "bugs",
+        "swarm",
+        "cockroach",
+        "ants",
+        "bees",
+        "wasps",
+        "flies",
+        "maggots",
+        "beetles"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Swarming, faceless multitudes often image small anxieties that are individually trivial but collectively overwhelming — worries that have multiplied unattended.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks waking irritants and 'infestations' — accumulating emails, debts, obligations — small things felt to be crawling out of control.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "rat",
+      "label": "Rats / mice",
+      "aliases": ["rats", "mice", "mouse", "rodent", "rodents"],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "In the psychoanalytic tradition rats carried gnawing guilt and repressed dread — the famous 'Rat Man' case turned on exactly this image.",
+          "source": "Freud, S. (1909). Notes upon a Case of Obsessional Neurosis."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Often continuous with disgust or a 'gnawing' waking worry — something small quietly eating at the edges of a situation.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "horse",
+      "label": "Horse",
+      "aliases": ["horse", "horses", "stallion", "mare", "horseback"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "A carrier of vital energy and the body's power; whether the dreamer rides, is thrown, or watches it run loose mirrors their relation to their own drive.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "freudian",
+          "meaning": "In classical case material the horse carried displaced instinctual energy and fear of it — most famously in the analysis of Little Hans.",
+          "source": "Freud, S. (1909). Analysis of a Phobia in a Five-Year-Old Boy."
+        }
+      ]
+    },
+    {
+      "id": "baby",
+      "label": "Baby / infant",
+      "aliases": ["baby", "infant", "newborn", "babies"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The child is the archetype of new beginnings and future possibility — something young in the dreamer's life (a project, a self) that needs protecting and feeding.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Directly continuous for expecting and new parents; otherwise tends to track a fragile new responsibility the dreamer worries about keeping alive.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "pregnancy",
+      "label": "Pregnancy",
+      "aliases": [
+        "pregnant",
+        "pregnancy",
+        "giving birth",
+        "in labor",
+        "labour"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Read as gestation of the not-yet-born: a work, identity, or decision developing inwardly and approaching its due time.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Extremely common and vivid during actual pregnancy, tracking its hopes and fears; outside it, follows waking anticipation of something imminent.",
+          "source": "Schredl, M. (2010). Characteristics and contents of dreams. International Review of Neurobiology, 92."
+        }
+      ]
+    },
+    {
+      "id": "wedding",
+      "label": "Wedding / marriage",
+      "aliases": [
+        "wedding",
+        "marry",
+        "married",
+        "marriage",
+        "bride",
+        "groom",
+        "engagement"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The marriage is Jung's great image of union of opposites — two sides of the dreamer's own nature being joined; who or what is married matters more than the ceremony.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks waking commitments being weighed — not only romantic: contracts, moves, promises the dreamer is deciding whether to bind themselves to.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "ex-partner",
+      "label": "An ex-partner",
+      "aliases": [
+        "my ex",
+        "ex-boyfriend",
+        "ex-girlfriend",
+        "ex boyfriend",
+        "ex girlfriend",
+        "old flame",
+        "former partner",
+        "ex-husband",
+        "ex-wife"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Ex-partners persist in dream series for years; they usually stage unfinished emotional business or appear when a current relationship echoes the old one.",
+          "source": "Domhoff, G. W. (1996). Finding Meaning in Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "A figure the psyche reuses as an image of a whole chapter of oneself — dreaming them often revisits who the dreamer was then, not the person themselves.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        }
+      ]
+    },
+    {
+      "id": "infidelity",
+      "label": "Cheating / being cheated on",
+      "aliases": [
+        "cheating",
+        "cheated on me",
+        "affair",
+        "unfaithful",
+        "betrayed me",
+        "betrayal"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Among the most common relationship dreams; tracks felt insecurity, jealousy, or unequal attention in waking life far more often than actual deception.",
+          "source": "Schredl, M. (2010). Characteristics and contents of dreams. International Review of Neurobiology, 92."
+        },
+        {
+          "framework": "freudian",
+          "meaning": "Read through wish and fear at once: the dream stages the suspicion so the feeling — often older than the relationship — can discharge.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "deceased-loved-one",
+      "label": "A deceased loved one",
+      "aliases": [
+        "dead grandmother",
+        "dead grandfather",
+        "dead mother",
+        "dead father",
+        "deceased",
+        "passed relative",
+        "late father",
+        "late mother",
+        "who died",
+        "who passed",
+        "late grandmother",
+        "late grandfather",
+        "dead grandma",
+        "dead grandpa"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Grief dreams are among the best documented: the dead return in dreams as waking grief works itself through, often shifting over months from distress toward comfort.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "The dead in dreams often personify what they carried for the dreamer in life — their counsel, their severity, their warmth — still active as an inner figure.",
+          "source": "Jung, C. G. (1963). Memories, Dreams, Reflections."
+        },
+        {
+          "framework": "sleep-science",
+          "meaning": "REM sleep supports emotional-memory processing; visitation dreams fit the brain reconsolidating charged memories toward lower distress.",
+          "source": "Walker, M. (2017). Why We Sleep."
+        }
+      ]
+    },
+    {
+      "id": "funeral",
+      "label": "Funeral / grave",
+      "aliases": [
+        "funeral",
+        "grave",
+        "graveyard",
+        "cemetery",
+        "coffin",
+        "burial",
+        "tombstone"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Burial imagery accompanies endings that deserve ceremony — the psyche formally laying down a role, era, or attachment so it can stop being carried.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Follows waking losses and anniversaries, or a decision the dreamer knows will close a chapter.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "blood",
+      "label": "Blood",
+      "aliases": ["blood", "bleeding", "bled"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The carrier of life-force: losing it images vitality draining into some situation; seeing another's blood often marks where the dreamer feels harm has been done.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Scored under misfortune and aggression: bodily injury content rises reliably during waking periods of conflict and anxiety.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "injury",
+      "label": "Injury / wound",
+      "aliases": [
+        "wound",
+        "wounded",
+        "injured",
+        "injury",
+        "broken leg",
+        "broken arm",
+        "cut myself",
+        "hurt myself"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Dream injuries track felt damage in waking life — to pride, standing, or trust — locating the hurt in the body part that carries the metaphor.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Simulated harm without real cost is central to threat rehearsal: the dream practices both the danger and living past it.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "illness",
+      "label": "Illness / hospital",
+      "aliases": [
+        "sick",
+        "illness",
+        "disease",
+        "hospital",
+        "cancer",
+        "dying of",
+        "diagnosis",
+        "surgery"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Health worries are among the most directly continuous dream contents — one's own symptoms, a loved one's condition, or an upcoming appointment surfacing at night.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "When not literal, sickness in dreams points at something in the dreamer's life that is unwell and asking for treatment — a relationship, a habit, an attitude.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        }
+      ]
+    },
+    {
+      "id": "hair-loss",
+      "label": "Losing hair",
+      "aliases": [
+        "hair falling out",
+        "losing my hair",
+        "bald",
+        "hair fell out",
+        "clumps of hair"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Grouped with the teeth dreams: classical anxiety symbolism around potency, attractiveness, and the fear of their loss.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks concerns about aging, attractiveness, and control slipping — hair being one of the few visible things we both display and lose.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "being-lost",
+      "label": "Being lost",
+      "aliases": [
+        "lost",
+        "couldn't find my way",
+        "can't find my way",
+        "wandering",
+        "no way out",
+        "unfamiliar streets"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Disorientation dreams accompany waking crossroads: the old map of one's life has expired and the new one is not yet drawn.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Reliably tracks decision uncertainty — career forks, relationship limbo, moves — the feeling of proceeding without directions.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "being-late",
+      "label": "Being late",
+      "aliases": [
+        "late for",
+        "running late",
+        "overslept",
+        "missed the meeting"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Freud read lateness and missed departures as consolation dreams: the anxious 'too late' is staged precisely so the sleeper may feel 'not yet.'",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "The signature dream of overload: schedules, expectations, and the waking sense that one is perpetually behind someone's clock.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "missed-transport",
+      "label": "Missing a train / flight",
+      "aliases": [
+        "missed the train",
+        "missed my flight",
+        "missed the bus",
+        "plane left",
+        "train left without me"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "The missed-departure dream was one of Freud's named consolations — 'do not worry, you will not depart' — a soothing staged against the fear of time running out.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Appears around real deadlines and life windows the dreamer fears are closing — applications, ages, opportunities boarding without them.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "vehicle-out-of-control",
+      "label": "Vehicle out of control / crash",
+      "aliases": [
+        "car crash",
+        "crashed",
+        "brakes",
+        "car wouldn't stop",
+        "lost control of the car",
+        "steering",
+        "collision",
+        "car accident"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "The runaway vehicle is the standard dream figure for a life domain accelerating beyond the dreamer's control — work, family, finances at the wheel.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "A modern threat the simulation system has adopted: rehearsing split-second response to fast-moving danger.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Accidents fall under the misfortune category, whose frequency tracks waking anxiety levels across dream series.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "driving",
+      "label": "Driving",
+      "aliases": [
+        "driving",
+        "drove",
+        "behind the wheel",
+        "in the driver's seat"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Who drives is the question: the dreamer at the wheel, a stranger, a parent — the dream shows who is currently steering the personality.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Continuous with agency in waking life: route, speed, and passengers mirror how directed — or chauffeured — one's current course feels.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "airplane",
+      "label": "Airplane",
+      "aliases": [
+        "airplane",
+        "plane",
+        "aeroplane",
+        "plane crash",
+        "airport",
+        "boarding"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "A vessel of great ascent piloted by someone else: ambitions and transitions whose success the dreamer must partly entrust to forces beyond them.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Clusters around real journeys and big transitions — new jobs, relocations — with turbulence and crashes tracking confidence in the plan.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "train",
+      "label": "Train",
+      "aliases": [
+        "train",
+        "railway",
+        "railroad",
+        "subway",
+        "metro",
+        "station platform"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Train journeys were classical departure symbolism in Freud's material, entangled with anxieties about time, endings, and leaving.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "A course already laid down: the dream-train evokes tracks one is on — career ladders, family scripts — and the stations where changing lines is possible.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "bridge",
+      "label": "Bridge",
+      "aliases": ["bridge", "crossing over", "footbridge"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The classic transition image: spanning between two states of life with the unconscious flowing beneath — its condition (sturdy, rotten, unfinished) is the reading.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Appears around waking transitions — jobs, relationships, cities — and tracks how safe the crossing currently feels.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "stairs",
+      "label": "Stairs",
+      "aliases": [
+        "stairs",
+        "staircase",
+        "stairway",
+        "climbing steps",
+        "steps going down"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Staircases and climbing were among Freud's explicitly listed dream symbols, carrying rhythmic bodily meaning beneath the architectural surface.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "Vertical movement through the psyche's house: descending toward unconscious material, ascending toward awareness — endless stairs suggest effort without arrival.",
+          "source": "Jung, C. G. (1963). Memories, Dreams, Reflections."
+        }
+      ]
+    },
+    {
+      "id": "elevator",
+      "label": "Elevator",
+      "aliases": ["elevator", "elevators", "stuck in the lift", "the lift"],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "The machine of rising and falling standing: elevator dreams track careers and status — stuck between floors, plummeting, or rising past one's stop.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Confinement plus uncontrolled motion — two ancestral alarm triggers compressed into one modern box.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        }
+      ]
+    },
+    {
+      "id": "door",
+      "label": "Door / gate",
+      "aliases": [
+        "door",
+        "doors",
+        "doorway",
+        "gate",
+        "locked door",
+        "door wouldn't open"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Thresholds between known and unknown parts of the self: a locked door marks something not yet permitted into consciousness; an open one, an invitation.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks opportunities and access in waking life — offers, rejections, and rooms (social or professional) one is trying to enter.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "key",
+      "label": "Key",
+      "aliases": ["key", "keys", "lost my keys", "unlock"],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Keys and locks were staple classical symbols of intimate access; losing keys, of anxiety about that access.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "The small thing that opens the large thing: an insight, admission, or person that would unlock a stuck situation — found, carried, or missing.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        }
+      ]
+    },
+    {
+      "id": "mirror",
+      "label": "Mirror",
+      "aliases": ["mirror", "reflection", "my reflection"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The confrontation with one's own image: a wrong, absent, or distorted reflection stages the gap between the lived self and the presented Persona.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Rises with waking self-scrutiny — appearance, aging, reputation, or a recent moment of being seen differently than intended.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "darkness",
+      "label": "Darkness",
+      "aliases": [
+        "darkness",
+        "pitch black",
+        "couldn't see",
+        "lights went out",
+        "in the dark"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The unlit part of the psyche — not evil but unknown; darkness dreams tend to precede encounters with what has been kept out of sight.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Loss of vision removes the primary human threat-detection sense; darkness is the simulation of vulnerability itself.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "moon",
+      "label": "Moon",
+      "aliases": ["moon", "moonlight", "full moon"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The night luminary: reflected, cyclical light standing for intuition, moods, and the feminine principle — seeing by moonlight is knowing by feeling.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "sleep-science",
+          "meaning": "Celestial and light imagery often draws on pre-sleep sensory residue and the visual system's own activity during REM.",
+          "source": "Hobson, J. A. (2002). Dreaming: An Introduction to the Science of Sleep."
+        }
+      ]
+    },
+    {
+      "id": "storm",
+      "label": "Storm / thunder",
+      "aliases": [
+        "storm",
+        "thunder",
+        "lightning",
+        "hurricane",
+        "gale",
+        "downpour"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Weather is the dream's mood made environmental: a storm is affect gathered beyond personal scale — anger or grief with the force of climate.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks approaching waking conflict — the argument not yet had, the decision not yet announced — felt as pressure before rain.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "earthquake",
+      "label": "Earthquake",
+      "aliases": ["earthquake", "ground shaking", "ground split", "tremor"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The very ground of assumptions moving: earthquake dreams accompany discoveries that what was taken as solid — a person, a belief, a plan — is not.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Large-scale disaster simulation, rehearsing survival when the environment itself becomes the threat.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "tornado",
+      "label": "Tornado",
+      "aliases": ["tornado", "twister", "whirlwind", "cyclone"],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "The approaching, unpredictable funnel is a signature image of anticipatory anxiety — visible trouble whose path can't be known, only watched.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Disaster rehearsal with a distinctive feature: the threat is watched from a distance first — simulation of vigilance as much as escape.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        }
+      ]
+    },
+    {
+      "id": "mountain",
+      "label": "Mountain",
+      "aliases": ["mountain", "mountains", "summit", "peak", "cliff"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The long ascent toward the Self: the mountain stands for the life-task, and where the dreamer is on it — base, slope, summit, or turning back — is the message.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Continuous with the big undertaking currently in view — degree, mortgage, recovery — and the dreamer's read on its steepness.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "forest",
+      "label": "Forest / woods",
+      "aliases": [
+        "forest",
+        "woods",
+        "jungle",
+        "trees closing in",
+        "deep woods"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The classic threshold of the unconscious in myth and fairy tale: entering the woods begins the inner journey; what is met there was waiting to be met.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Ancestral environment of concealed danger — reduced sightlines and unseen movement — a natural stage for vigilance rehearsal.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "garden",
+      "label": "Garden / flowers",
+      "aliases": [
+        "garden",
+        "flowers",
+        "blooming",
+        "roses",
+        "meadow",
+        "blossom"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Cultivated nature: the inner life as tended ground. Flourishing or neglect in the dream-garden mirrors care given to one's own growth.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Often simply continuous with pleasant waking experience; when charged, tracks something delicate the dreamer is trying to help thrive.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "tree",
+      "label": "Tree",
+      "aliases": ["tree", "trees", "oak", "roots", "branches", "fallen tree"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Jung's image of the Self's slow growth — roots in the unconscious, crown in consciousness; a felled or dying tree marks felt damage to one's own unfolding.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Family trees and life-progress: often appears when heritage, parenthood, or long-term growth is on the waking mind.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "fire",
+      "label": "Fire",
+      "aliases": [
+        "fire",
+        "burning",
+        "flames",
+        "burned",
+        "burnt",
+        "on fire",
+        "house fire",
+        "wildfire"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Transforming energy in both aspects: passion and destruction. What burns matters — fire that consumes the old can be renewal; fire out of control is affect unmastered.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "freudian",
+          "meaning": "Classically tied to passion and forbidden desire, with the dream-censor letting heat appear where the wish itself could not.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "One of the oldest lethal hazards; fire dreams engage the same rehearsal circuitry as predator and disaster dreams.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "food",
+      "label": "Food / eating",
+      "aliases": [
+        "eating",
+        "food",
+        "feast",
+        "starving",
+        "hungry",
+        "meal",
+        "banquet"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Appetite standing for appetite: hunger dreams are the plainest wish-fulfilments, and food often carries other cravings the censor allows in edible form.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks nourishment in the widest sense — what the dreamer is fed by work, love, and rest — and current dieting or scarcity concerns literally.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "money",
+      "label": "Money",
+      "aliases": [
+        "money",
+        "cash",
+        "coins",
+        "wallet",
+        "lost my wallet",
+        "gold",
+        "treasure"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "In classical symbolism money condensed value, retention, and self-worth — finding or losing it staged gains and losses the dreamer could not yet name.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Usually directly continuous with financial concern; otherwise tracks felt worth — being valued, shortchanged, or in someone's debt.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "phone-failure",
+      "label": "Phone not working",
+      "aliases": [
+        "phone wouldn't work",
+        "couldn't dial",
+        "couldn't call",
+        "phone broke",
+        "no signal",
+        "call wouldn't go through"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "A modern classic: the failed call tracks waking communication breakdown — someone unreachable, something unsayable, help that can't be summoned.",
+          "source": "Schredl, M. (2010). Characteristics and contents of dreams. International Review of Neurobiology, 92."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Inability to call for help removes the social safety net — the simulation stresses self-reliance under threat.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        }
+      ]
+    },
+    {
+      "id": "trapped",
+      "label": "Being trapped",
+      "aliases": [
+        "trapped",
+        "locked in",
+        "couldn't get out",
+        "can't get out",
+        "no exit",
+        "walls closing"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "The confinement dream reliably accompanies waking situations experienced as exitless — jobs, contracts, relationships, caretaking without relief.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Entrapment is a core ancestral danger; rehearsing escape routes is among the threat-simulation system's primary jobs.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        }
+      ]
+    },
+    {
+      "id": "prison",
+      "label": "Prison / being arrested",
+      "aliases": [
+        "prison",
+        "jail",
+        "arrested",
+        "handcuffs",
+        "locked up",
+        "prison cell"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Imprisonment by one's own verdicts: the dream-jail is often built of internalized rules, and the jailer usually has a familiar face.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "freudian",
+          "meaning": "Arrest and punishment dreams express the superego's pressure — guilt seeking a sentence for wishes the dreamer never acted on.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "paralysis",
+      "label": "Can't run / move / scream",
+      "aliases": [
+        "couldn't move",
+        "can't move",
+        "couldn't run",
+        "legs wouldn't work",
+        "couldn't scream",
+        "can't scream",
+        "frozen in place",
+        "paralyzed",
+        "slow motion running",
+        "would not move",
+        "legs would not",
+        "could not move",
+        "could not run",
+        "could not scream"
+      ],
+      "perspectives": [
+        {
+          "framework": "sleep-science",
+          "meaning": "During REM the body is genuinely paralyzed (muscle atonia); dreams of leaden legs and silenced voices are the brain noticing its own switched-off motor output.",
+          "source": "Hobson, J. A. (2002). Dreaming: An Introduction to the Science of Sleep."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Also tracks waking powerlessness — situations where the dreamer sees what's coming and feels unable to act or be heard.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "intruder",
+      "label": "Intruder / burglar",
+      "aliases": [
+        "intruder",
+        "burglar",
+        "someone in the house",
+        "break in",
+        "broke into",
+        "stranger in my home"
+      ],
+      "perspectives": [
+        {
+          "framework": "threat-simulation",
+          "meaning": "The home-invasion dream is threat simulation at its most literal: defending the den is an ancestral scenario the system still drills.",
+          "source": "Revonsuo, A. (2000). The reinterpretation of dreams. Behavioral and Brain Sciences, 23."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "If the house is the psyche, the intruder is what has forced entry into it — a thought, person, or change the dreamer did not invite but must now face indoors.",
+          "source": "Jung, C. G. (1963). Memories, Dreams, Reflections."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Rises with waking boundary violations — privacy, safety, or someone overstepping into the dreamer's space or life.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "monster",
+      "label": "Monster",
+      "aliases": ["monster", "creature", "beast", "it wasn't human"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The Shadow at maximum distortion: what is refused recognition returns misshapen. Monsters shrink when named — in dreams as in myth.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Composite predators — fangs, claws, pursuit — are the threat system's stock characters, especially in childhood when the rehearsal system is most active.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        }
+      ]
+    },
+    {
+      "id": "ghost",
+      "label": "Ghost",
+      "aliases": ["ghost", "spirit", "haunted", "apparition", "haunting"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "What is dead but not gone: unfinished relationships, old selves, and unmourned losses walking the dream-house until they are acknowledged.",
+          "source": "Jung, C. G. (1963). Memories, Dreams, Reflections."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Haunting dreams track waking preoccupation with the past — regret, grief, or a history that keeps intruding on the present.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "demon",
+      "label": "Demon / dark presence",
+      "aliases": [
+        "demon",
+        "devil",
+        "evil presence",
+        "dark presence",
+        "possessed",
+        "something evil"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The Shadow given theological costume: overwhelming affect — rage, despair, temptation — personified as an outside evil so it can be confronted as a figure.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "sleep-science",
+          "meaning": "Sensed dark presences are characteristic of sleep paralysis and hypnagogic states, where fear circuitry fires while the body cannot move.",
+          "source": "Hobson, J. A. (2002). Dreaming: An Introduction to the Science of Sleep."
+        }
+      ]
+    },
+    {
+      "id": "war",
+      "label": "War / battle",
+      "aliases": [
+        "war",
+        "battle",
+        "battlefield",
+        "soldiers",
+        "bombs",
+        "explosion",
+        "air raid"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks open waking conflict — familial, professional, or internal — and, in wartime populations, incorporates the news itself with documented fidelity.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "Civil war of the psyche: two settled positions in the dreamer at open hostilities, each with its army and its righteousness.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        }
+      ]
+    },
+    {
+      "id": "weapon",
+      "label": "Weapon (gun, knife)",
+      "aliases": [
+        "gun",
+        "knife",
+        "weapon",
+        "shot at",
+        "stabbed",
+        "shooting",
+        "blade"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Weapons were listed among the most standardized of the classical symbols, carrying aggressive and sexual charge in displaced, pointed form.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Weapon-involved aggression is precisely scored in content analysis; its direction — dreamer as aggressor or victim — differentiates dream series strongly.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        },
+        {
+          "framework": "threat-simulation",
+          "meaning": "Armed threat is the modern face of the predator scenario — same rehearsal, updated props.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        }
+      ]
+    },
+    {
+      "id": "police",
+      "label": "Police",
+      "aliases": ["police", "policeman", "officer", "sirens", "police car"],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Authority personified: the internal censor and judge appearing in uniform, usually just as some wish approaches the border of the permissible.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks waking dealings with rules, judgment, and accountability — audits, evaluations, or guilt about a real transgression however small.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "romance",
+      "label": "Kissing / romance",
+      "aliases": [
+        "kiss",
+        "kissed",
+        "kissing",
+        "romance",
+        "falling in love",
+        "held hands",
+        "embrace"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Often the least disguised of wish-fulfilments — longing granted directly, or displaced onto an unexpected face the censor found acceptable.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "The dream-beloved frequently personifies the anima/animus — the dreamer's own inner counterpart — so the romance is also self-encounter.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Continuous with current attachment life: new interest, missing intimacy, or auditing an existing bond.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "sex",
+      "label": "Sex",
+      "aliases": [
+        "sex",
+        "sleeping with",
+        "slept with",
+        "making love",
+        "intimate with"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "For Freud the open form of what most dream-symbolism conceals; the notable question is any distortion — who, where, and what interrupts.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "A scored content category with large, stable individual and cultural differences; frequency tracks waking preoccupation more than behavior.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "Union imagery: beyond the literal, coupling in dreams often depicts two sides of the personality merging — especially when the partner is symbolic or strange.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        }
+      ]
+    },
+    {
+      "id": "celebrity",
+      "label": "Celebrity / famous person",
+      "aliases": ["celebrity", "famous", "movie star", "singer", "idol"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "A ready-made projection screen: the celebrity carries qualities the dreamer admires or disowns — the dream borrows a famous face for an inner figure.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Media consumption enters dreams directly; charged celebrity dreams track ambitions about recognition and being seen.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "stranger",
+      "label": "Stranger / unknown figure",
+      "aliases": [
+        "stranger",
+        "unknown man",
+        "unknown woman",
+        "faceless",
+        "shadowy figure",
+        "someone I didn't know"
+      ],
+      "perspectives": [
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Strangers make up roughly half of all dream characters in normative samples — their ratio to known characters is a core content metric.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "The unknown same-sex figure is Jung's textbook Shadow; the unknown opposite-sex figure, the anima/animus — unmet aspects of self wearing anonymous faces.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        }
+      ]
+    },
+    {
+      "id": "climbing",
+      "label": "Climbing",
+      "aliases": [
+        "climbing",
+        "climbed",
+        "clambering",
+        "scaling",
+        "couldn't climb"
+      ],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Rhythmic exertion upward was among Freud's listed bodily symbols; anxiety while climbing marks conflict about the striving itself.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "The effortful ascent tracks current strivings — promotions, degrees, recoveries — and whether the grip feels secure this week.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "maze",
+      "label": "Maze / labyrinth",
+      "aliases": [
+        "maze",
+        "labyrinth",
+        "endless corridors",
+        "hallways that kept going",
+        "corridor"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The winding path to the center of oneself — with something waiting at the middle. Mazes appear when the way forward is real but not straight.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Bureaucracies, healthcare systems, careers: waking labyrinths render faithfully at night, wrong turns included.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "clock",
+      "label": "Clock / time running out",
+      "aliases": [
+        "clock",
+        "wristwatch",
+        "countdown",
+        "time running out",
+        "out of time",
+        "deadline",
+        "ticking"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Deadline pressure is among the most direct dream continuities; the dream-clock ticks loudest in weeks the calendar does.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "jungian",
+          "meaning": "Beneath schedules, the clock carries mortality — dreams of stopped or racing time often follow birthdays, diagnoses, and other meetings with finitude.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        }
+      ]
+    },
+    {
+      "id": "searching",
+      "label": "Searching for something lost",
+      "aliases": [
+        "searching",
+        "looking for",
+        "couldn't find",
+        "can't find",
+        "lost something",
+        "misplaced"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The sought object stands for a missing part of the dreamer — a confidence, tenderness, or purpose mislaid somewhere along the way; the search itself is the work.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks waking loss and wanting: a person drifting away, an old ease gone, or literally the passport before the trip.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "luggage",
+      "label": "Luggage / bags",
+      "aliases": ["luggage", "suitcase", "baggage", "backpack", "packing"],
+      "perspectives": [
+        {
+          "framework": "freudian",
+          "meaning": "Freud listed luggage among the standard symbols — the load one travels with, in every sense the word 'baggage' still carries.",
+          "source": "Freud, S. (1900). The Interpretation of Dreams."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Packing dreams cluster before transitions; lost or excessive luggage tracks what the dreamer fears bringing — or leaving behind.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "school",
+      "label": "School / classroom",
+      "aliases": [
+        "school",
+        "classroom",
+        "back in school",
+        "high school",
+        "college",
+        "university",
+        "lecture"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "School persists in dreams for decades after graduation — the mind's standing set for evaluation, hierarchy, and belonging, redressed with current concerns.",
+          "source": "Domhoff, G. W. (1996). Finding Meaning in Dreams."
+        },
+        {
+          "framework": "sleep-science",
+          "meaning": "Long-consolidated adolescent memory networks are richly connected and easily reactivated during REM — old classrooms are simply well-worn neural stages.",
+          "source": "Walker, M. (2017). Why We Sleep."
+        }
+      ]
+    },
+    {
+      "id": "workplace",
+      "label": "Workplace / boss",
+      "aliases": [
+        "office",
+        "workplace",
+        "my boss",
+        "coworker",
+        "colleague",
+        "fired",
+        "at work"
+      ],
+      "perspectives": [
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Work is the most faithfully continuous dream setting for adults; the boss-figure concentrates judgment, security, and worth into one character.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        },
+        {
+          "framework": "hall-vandecastle",
+          "meaning": "Authority interactions are scored along the aggression–friendliness axis; their tone across a dream series mirrors the waking relationship closely.",
+          "source": "Hall, C. S., & Van de Castle, R. (1966). The Content Analysis of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "old-friend",
+      "label": "An old friend",
+      "aliases": [
+        "old friend",
+        "childhood friend",
+        "friend from school",
+        "haven't seen in years"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "Old friends return carrying the era they belong to — the dream summons who the dreamer was beside them, often to compare against who they've become.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Sparked by reminders and anniversaries, or by a present friendship shortfall the old one is measuring.",
+          "source": "Domhoff, G. W. (1996). Finding Meaning in Dreams."
+        }
+      ]
+    },
+    {
+      "id": "hiding",
+      "label": "Hiding",
+      "aliases": ["hiding", "hid from", "hide from", "crouched behind"],
+      "perspectives": [
+        {
+          "framework": "threat-simulation",
+          "meaning": "Concealment is the second half of the escape repertoire; hiding dreams rehearse stillness, patience, and reading the searcher.",
+          "source": "Valli, K., & Revonsuo, A. (2009). The threat simulation theory. American Journal of Psychology, 122."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Tracks waking concealment — a truth withheld, a self edited for safety, a season of keeping one's head down.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "sun",
+      "label": "Sun / bright light",
+      "aliases": [
+        "sunlight",
+        "sunrise",
+        "sunshine",
+        "blinding light",
+        "golden light",
+        "dawn"
+      ],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The great symbol of consciousness itself: dawns accompany realizations arriving; a darkened or black sun, a crisis of meaning.",
+          "source": "Jung, C. G. (1959). The Archetypes and the Collective Unconscious."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Light in dreams tracks mood with unusual directness — brightening and darkening with the dreamer's waking outlook.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
+        }
+      ]
+    },
+    {
+      "id": "candle",
+      "label": "Candle / lamp",
+      "aliases": ["candle", "candlelight", "lantern", "oil lamp"],
+      "perspectives": [
+        {
+          "framework": "jungian",
+          "meaning": "The small, tended light in darkness: individual consciousness holding against the unknown — its guttering or steadiness reads as the state of hope.",
+          "source": "Jung, C. G. (1964). Man and His Symbols."
+        },
+        {
+          "framework": "continuity-hypothesis",
+          "meaning": "Often carries vigil and memory — someone being waited for, or kept in mind — alongside literal cozy or ritual associations from waking life.",
+          "source": "Domhoff, G. W. (2003). The Scientific Study of Dreams."
         }
       ]
     }

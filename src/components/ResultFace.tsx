@@ -14,14 +14,21 @@ export function ResultFace({
   onEnterDream: () => void;
   onWriteAgain: () => void;
 }) {
-  const lines = toLines(result.interpretation);
+  // Two-part reading; older journal entries / fallbacks may have no foretelling.
+  const meaningLines = toLines(result.meaning || result.interpretation);
+  const foretellingLines = result.foretelling
+    ? toLines(result.foretelling)
+    : [];
+  // The foretelling's reveal continues the meaning's stagger.
+  const offset = meaningLines.length;
 
   return (
     <div className="sheet-face sheet-result">
+      <p className="reading-part-title reveal-line">The Meaning</p>
       <p className="interpretation">
-        {lines.map((line, i) => (
+        {meaningLines.map((line, i) => (
           <span
-            key={`${i}-${line.slice(0, 12)}`}
+            key={`m-${i}-${line.slice(0, 12)}`}
             className="reveal-line"
             style={{ animationDelay: `${i * 0.3}s` }}
           >
@@ -29,6 +36,28 @@ export function ResultFace({
           </span>
         ))}
       </p>
+
+      {foretellingLines.length > 0 && (
+        <>
+          <p
+            className="reading-part-title reading-part-title--omen reveal-line"
+            style={{ animationDelay: `${offset * 0.3}s` }}
+          >
+            What It Foretells
+          </p>
+          <p className="interpretation interpretation--omen">
+            {foretellingLines.map((line, i) => (
+              <span
+                key={`f-${i}-${line.slice(0, 12)}`}
+                className="reveal-line"
+                style={{ animationDelay: `${(offset + 1 + i) * 0.3}s` }}
+              >
+                {line}
+              </span>
+            ))}
+          </p>
+        </>
+      )}
 
       {(result.matchedSymbols.length > 0 ||
         result.frameworksUsed.length > 0) && (

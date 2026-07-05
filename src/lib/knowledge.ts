@@ -35,20 +35,38 @@ export type Framework = {
 const symbols = symbolsData.symbols as DreamSymbol[];
 const frameworks = frameworksData.frameworks as Framework[];
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Match a term as whole words (so "cat" never fires inside "vacation"),
+// tolerating light inflection: plurals for all words, -d/-ed for longer ones
+// (short words stay strict so "war" can't swallow "ward"). Richer verb forms
+// (chasing, burnt…) belong in the aliases themselves.
+function termToPattern(term: string): RegExp {
+  const words = term.toLowerCase().trim().split(/\s+/);
+  const last = words.length - 1;
+  const suffix = words[last].length >= 4 ? "(?:s|es|d|ed)?" : "s?";
+  const escaped = words.map(escapeRegExp);
+  escaped[last] = `${escaped[last]}${suffix}`;
+  return new RegExp(`\\b${escaped.join("\\s+")}\\b`, "i");
+}
+
+// Precompile every symbol's patterns once at module load.
+const compiled = symbols.map((symbol) => ({
+  symbol,
+  patterns: [symbol.label, ...symbol.aliases].map(termToPattern),
+}));
+
 /**
  * Look through the dream text and return every symbol whose label or one of
- * its aliases appears in the text. Matching is lowercase and substring-based,
- * so "I was drowning in the ocean" matches the "water" symbol via its aliases.
+ * its aliases appears as a whole word/phrase. "I was drowning in the ocean"
+ * matches the "water" symbol via its aliases; "vacation" does not match "cat".
  */
 export function matchSymbols(dreamText: string): DreamSymbol[] {
-  const text = dreamText.toLowerCase();
-
-  return symbols.filter((symbol) => {
-    const searchTerms = [symbol.label, ...symbol.aliases].map((t) =>
-      t.toLowerCase()
-    );
-    return searchTerms.some((term) => text.includes(term));
-  });
+  return compiled
+    .filter(({ patterns }) => patterns.some((p) => p.test(dreamText)))
+    .map(({ symbol }) => symbol);
 }
 
 /** Find the full framework writeup for a given framework id. */

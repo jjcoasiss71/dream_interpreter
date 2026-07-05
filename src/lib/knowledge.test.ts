@@ -31,6 +31,32 @@ describe("matchSymbols", () => {
     expect(matchSymbols("a completely unremarkable afternoon")).toHaveLength(0);
   });
 
+  it("matches whole words only — no substring false positives", () => {
+    // "cat" must not fire inside "vacation", "key" not inside "monkey",
+    // "war" not inside "toward"/"warm", "sun" not inside "Sunday"
+    expect(
+      matchSymbols("on vacation a monkey walked toward the warm Sunday market")
+    ).toHaveLength(0);
+  });
+
+  it("tolerates plurals and simple past forms", () => {
+    expect(
+      matchSymbols("two snakes and three spiders").map((s) => s.id)
+    ).toEqual(expect.arrayContaining(["snake", "spider"]));
+    expect(matchSymbols("a stranger embraced me").map((s) => s.id)).toContain(
+      "stranger"
+    );
+  });
+
+  it("keeps short words strict (war does not swallow ward)", () => {
+    expect(matchSymbols("I walked through the hospital ward")).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: "war" })])
+    );
+    expect(matchSymbols("a terrible war broke out").map((s) => s.id)).toContain(
+      "war"
+    );
+  });
+
   it("every matched symbol carries sourced perspectives", () => {
     for (const s of matchSymbols("water snake teeth")) {
       expect(s.perspectives.length).toBeGreaterThan(0);
