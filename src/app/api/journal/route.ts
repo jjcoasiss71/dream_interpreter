@@ -1,4 +1,4 @@
-// app/api/journal/route.ts
+// src/app/api/journal/route.ts
 // ---------------------------------------------------------------------------
 // The "ultimate interpretation": reads the WHOLE dream journal at once and
 // reflects on the recurring symbols, themes, and threads across all of it —
@@ -7,38 +7,23 @@
 // ---------------------------------------------------------------------------
 
 import { NextResponse } from "next/server";
-import {
-  matchSymbols,
-  getFramework,
-  frameworkSummaries,
-} from "@/lib/knowledge";
-
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile";
-
-type IncomingDream = { dreamText?: string };
+import { matchSymbols } from "@/lib/knowledge";
+import { buildGroundingText } from "@/lib/grounding";
+import { chat, LlmError } from "@/lib/llm";
+import { journalReadRequestSchema, type JournalReadResponse } from "@/types/api";
 
 export async function POST(request: Request) {
   try {
-    const { dreams } = await request.json();
-
-    if (!Array.isArray(dreams) || dreams.length === 0) {
+    const parsed = journalReadRequestSchema.safeParse(await request.json());
+    if (!parsed.success) {
       return NextResponse.json(
         { error: "There are no dreams to reflect on yet." },
         { status: 400 }
       );
     }
 
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "Server is missing its GROQ_API_KEY." },
-        { status: 500 }
-      );
-    }
-
-    const texts = (dreams as IncomingDream[])
-      .map((d) => (typeof d?.dreamText === "string" ? d.dreamText.trim() : ""))
+    const texts = parsed.data.dreams
+      .map((d) => d.dreamText.trim())
       .filter(Boolean)
       .slice(0, 40);
 
@@ -51,24 +36,7 @@ export async function POST(request: Request) {
 
     // Find every catalogued symbol that appears anywhere in the journal.
     const matched = matchSymbols(texts.join("\n"));
-
-    let groundingText: string;
-    if (matched.length > 0) {
-      groundingText = matched
-        .map((symbol) => {
-          const lines = symbol.perspectives.map((p) => {
-            const fw = getFramework(p.framework);
-            const fwName = fw ? fw.name : p.framework;
-            return `    • [${fwName}] ${p.meaning} (Source: ${p.source})`;
-          });
-          return `Symbol "${symbol.label}":\n${lines.join("\n")}`;
-        })
-        .join("\n\n");
-    } else {
-      groundingText =
-        "No specific catalogued symbol was detected. General frameworks:\n" +
-        frameworkSummaries();
-    }
+    const groundingText = buildGroundingText(matched);
 
     const journalText = texts
       .map((t, i) => `  ${i + 1}. ${t.slice(0, 300)}`)
@@ -85,43 +53,26 @@ Rules:
 Sourced perspectives you may use:
 ${groundingText}`;
 
-    const groqResponse = await fetch(GROQ_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        temperature: 0.7,
-        messages: [
+    const reading =
+      (
+        await chat([
           { role: "system", content: systemPrompt },
           {
             role: "user",
             content: `Here is my dream journal (most recent first):\n${journalText}`,
           },
-        ],
-      }),
-    });
+        ])
+      ).trim() || "No reflection was generated.";
 
-    if (!groqResponse.ok) {
-      const detail = await groqResponse.text();
-      console.error("Groq error:", detail);
-      return NextResponse.json(
-        { error: "The interpreter is busy right now. Please try again." },
-        { status: 502 }
-      );
-    }
-
-    const data = await groqResponse.json();
-    const reading: string =
-      data.choices?.[0]?.message?.content ?? "No reflection was generated.";
-
-    return NextResponse.json({
+    const response: JournalReadResponse = {
       reading,
       matchedSymbols: matched.map((s) => s.label),
-    });
+    };
+    return NextResponse.json(response);
   } catch (err) {
+    if (err instanceof LlmError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
     console.error(err);
     return NextResponse.json(
       { error: "Something went wrong reading the journal." },

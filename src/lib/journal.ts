@@ -65,25 +65,50 @@ export function saveJournalView(mode: JournalView): void {
   }
 }
 
+// The stored payload is versioned so a future shape change can migrate old
+// journals instead of silently corrupting them. v1 = { v: 1, entries: [...] }.
+// The original (pre-versioning) format was a bare array; it is migrated on read.
+const SCHEMA_VERSION = 1;
+
+type StoredJournal = { v: number; entries: JournalEntry[] };
+
+function migrate(parsed: unknown): JournalEntry[] {
+  // legacy: a bare array of entries
+  if (Array.isArray(parsed)) return parsed as JournalEntry[];
+  // current: versioned envelope
+  if (
+    parsed !== null &&
+    typeof parsed === "object" &&
+    Array.isArray((parsed as StoredJournal).entries)
+  ) {
+    return (parsed as StoredJournal).entries;
+  }
+  return [];
+}
+
 export function loadJournal(): JournalEntry[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? (parsed as JournalEntry[]) : [];
+    return raw ? migrate(JSON.parse(raw)) : [];
   } catch {
     return [];
+  }
+}
+
+function persist(entries: JournalEntry[]): void {
+  try {
+    const payload: StoredJournal = { v: SCHEMA_VERSION, entries };
+    window.localStorage.setItem(KEY, JSON.stringify(payload));
+  } catch {
+    // storage full / disabled — fail quietly, the app still works.
   }
 }
 
 /** Prepend a new entry, cap the list, persist, and return the new list. */
 export function saveEntry(entry: JournalEntry): JournalEntry[] {
   const next = [entry, ...loadJournal()].slice(0, MAX_ENTRIES);
-  try {
-    window.localStorage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    // storage full / disabled — fail quietly, the app still works.
-  }
+  persist(next);
   return next;
 }
 

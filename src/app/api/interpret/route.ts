@@ -1,49 +1,38 @@
-// app/api/interpret/route.ts
+// src/app/api/interpret/route.ts
 // ---------------------------------------------------------------------------
-// This is the SERVER endpoint. The browser sends a dream here; this code:
-//   1. matches symbols from the knowledge base
-//   2. gathers their sourced perspectives
-//   3. asks Groq's LLM to phrase a grounded interpretation
-//   4. sends the result back
-//
-// The Groq API key is read here on the server (process.env.GROQ_API_KEY) and
-// is NEVER sent to the browser, so users can't see or steal it.
+// The interpretation endpoint. The browser sends a dream; this route:
+//   1. validates the request (zod — see src/types/api.ts, the shared contract)
+//   2. matches symbols from the knowledge base and builds sourced grounding
+//   3. asks the LLM (src/lib/llm.ts) to phrase a grounded interpretation
+//   4. returns InterpretResponse
+// The API key is read only on the server and never reaches the browser.
 // ---------------------------------------------------------------------------
 
 import { NextResponse } from "next/server";
+import { matchSymbols } from "@/lib/knowledge";
+import { buildGroundingText, frameworksUsed } from "@/lib/grounding";
+import { chat, LlmError } from "@/lib/llm";
 import {
-  matchSymbols,
-  getFramework,
-  frameworkSummaries,
-} from "@/lib/knowledge";
+  interpretRequestSchema,
+  type InterpretRequest,
+  type InterpretResponse,
+} from "@/types/api";
 
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile"; // a free, capable Groq model
-
-// The client may send a small summary of the dreamer's on-device history so
-// the interpretation can notice recurring patterns. It is never stored here.
-type ClientHistory = {
-  recurringSymbols?: { label: string; count: number }[];
-  recentDreams?: { dreamText: string; createdAt: number }[];
-};
-
-function buildHistoryText(history: unknown): string {
-  if (!history || typeof history !== "object") return "";
-  const h = history as ClientHistory;
+/** Render the dreamer's optional on-device history into prompt context. */
+function buildHistoryText(history: InterpretRequest["history"]): string {
+  if (!history) return "";
   const parts: string[] = [];
 
-  if (Array.isArray(h.recurringSymbols) && h.recurringSymbols.length > 0) {
-    const top = h.recurringSymbols
-      .filter((s) => s && typeof s.label === "string")
+  if (history.recurringSymbols?.length) {
+    const top = history.recurringSymbols
       .slice(0, 8)
       .map((s) => `${s.label} (${s.count}×)`)
       .join(", ");
     if (top) parts.push(`Symbols that recur across their past dreams: ${top}.`);
   }
 
-  if (Array.isArray(h.recentDreams) && h.recentDreams.length > 0) {
-    const recent = h.recentDreams
-      .filter((d) => d && typeof d.dreamText === "string")
+  if (history.recentDreams?.length) {
+    const recent = history.recentDreams
       .slice(0, 3)
       .map((d, i) => `  ${i + 1}. ${d.dreamText.slice(0, 320)}`)
       .join("\n");
@@ -55,48 +44,17 @@ function buildHistoryText(history: unknown): string {
 
 export async function POST(request: Request) {
   try {
-    const { dream, history } = await request.json();
-
-    // Basic validation
-    if (!dream || typeof dream !== "string" || dream.trim().length < 3) {
-      return NextResponse.json(
-        { error: "Please describe your dream in a little more detail." },
-        { status: 400 }
-      );
+    const parsed = interpretRequestSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      const message =
+        parsed.error.issues[0]?.message ??
+        "Please describe your dream in a little more detail.";
+      return NextResponse.json({ error: message }, { status: 400 });
     }
+    const { dream, history } = parsed.data;
 
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "Server is missing its GROQ_API_KEY." },
-        { status: 500 }
-      );
-    }
-
-    // 1 + 2. Retrieve matching symbols and build grounded reference text.
     const matched = matchSymbols(dream);
-
-    let groundingText: string;
-    if (matched.length > 0) {
-      groundingText = matched
-        .map((symbol) => {
-          const lines = symbol.perspectives.map((p) => {
-            const fw = getFramework(p.framework);
-            const fwName = fw ? fw.name : p.framework;
-            return `    • [${fwName}] ${p.meaning} (Source: ${p.source})`;
-          });
-          return `Symbol "${symbol.label}":\n${lines.join("\n")}`;
-        })
-        .join("\n\n");
-    } else {
-      // No specific symbol matched — give the LLM the general frameworks so it
-      // can still respond sensibly instead of inventing meanings.
-      groundingText =
-        "No specific catalogued symbol was detected. General frameworks:\n" +
-        frameworkSummaries();
-    }
-
-    // 3. Ask Groq to phrase the interpretation, constrained to our sources.
+    const groundingText = buildGroundingText(matched);
     const historyText = buildHistoryText(history);
 
     const systemPrompt = `You are a careful, empathetic dream-interpretation assistant.
@@ -115,48 +73,24 @@ ${
 Sourced perspectives you may use:
 ${groundingText}`;
 
-    const groqResponse = await fetch(GROQ_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        temperature: 0.7,
-        messages: [
+    const interpretation =
+      (
+        await chat([
           { role: "system", content: systemPrompt },
           { role: "user", content: `My dream: ${dream}` },
-        ],
-      }),
-    });
+        ])
+      ).trim() || "No interpretation was generated.";
 
-    if (!groqResponse.ok) {
-      const detail = await groqResponse.text();
-      console.error("Groq error:", detail);
-      return NextResponse.json(
-        { error: "The interpreter is busy right now. Please try again." },
-        { status: 502 }
-      );
-    }
-
-    const data = await groqResponse.json();
-    const interpretation: string =
-      data.choices?.[0]?.message?.content ?? "No interpretation was generated.";
-
-    // 4. Send back the interpretation plus which symbols/frameworks were used.
-    const frameworksUsed = Array.from(
-      new Set(matched.flatMap((s) => s.perspectives.map((p) => p.framework)))
-    )
-      .map((id) => getFramework(id)?.name)
-      .filter(Boolean);
-
-    return NextResponse.json({
+    const response: InterpretResponse = {
       interpretation,
       matchedSymbols: matched.map((s) => s.label),
-      frameworksUsed,
-    });
+      frameworksUsed: frameworksUsed(matched),
+    };
+    return NextResponse.json(response);
   } catch (err) {
+    if (err instanceof LlmError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
     console.error(err);
     return NextResponse.json(
       { error: "Something went wrong interpreting your dream." },
