@@ -42,7 +42,9 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 800ms ease-in-out, filter 2600ms ease;
+  transition:
+    opacity 800ms ease-in-out,
+    filter 2600ms ease;
 }
 
 /* STEP 2 — the candle sits above the letter; its light pools downward.
@@ -59,8 +61,16 @@
 
 .page-glow--day {
   background:
-    radial-gradient(130% 70% at 50% 0%, var(--day-glow-core) 0%, transparent 60%),
-    radial-gradient(100% 100% at 50% 30%, var(--day-glow-mist) 0%, transparent 70%);
+    radial-gradient(
+      130% 70% at 50% 0%,
+      var(--day-glow-core) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      100% 100% at 50% 30%,
+      var(--day-glow-mist) 0%,
+      transparent 70%
+    );
 }
 
 body[data-mode="nightfall"] .page-glow--day {
@@ -122,7 +132,8 @@ body[data-mode="daybreak"] .page-glow--night {
   padding: 150px 1.75rem 5rem;
   opacity: 0;
   /* page-in, then a slow idle breath as if you're hunched over the desk */
-  animation: pageIn 1.5s ease forwards,
+  animation:
+    pageIn 1.5s ease forwards,
     sceneBreathe 9s ease-in-out 1.5s infinite;
 }
 
@@ -194,7 +205,8 @@ body[data-mode="daybreak"] .page-glow--night {
   border: 5px solid #4f4024;
   border-radius: 50%;
   background: transparent;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6),
+  box-shadow:
+    inset 0 0 6px rgba(0, 0, 0, 0.6),
     inset -2px -2px 3px rgba(0, 0, 0, 0.55),
     0 3px 7px -2px rgba(0, 0, 0, 0.7);
 }
@@ -214,7 +226,8 @@ body[data-mode="daybreak"] .page-glow--night {
     #382c1a 80%,
     #221b10 100%
   );
-  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.82),
+  box-shadow:
+    0 12px 24px -6px rgba(0, 0, 0, 0.82),
     inset 0 2px 3px rgba(206, 186, 138, 0.16);
 }
 
@@ -314,7 +327,8 @@ body[data-mode="daybreak"] .page-glow--night {
   );
   filter: blur(0.4px);
   transform-origin: 50% 100%;
-  box-shadow: 0 0 20px 6px color-mix(in srgb, var(--flame-mid) 52%, transparent),
+  box-shadow:
+    0 0 20px 6px color-mix(in srgb, var(--flame-mid) 52%, transparent),
     0 -4px 46px 14px color-mix(in srgb, var(--flame-edge) 28%, transparent);
   animation: flicker 2.4s ease-in-out infinite;
   transition: opacity 400ms ease;
@@ -329,7 +343,11 @@ body[data-mode="daybreak"] .page-glow--night {
   height: 9px;
   margin-left: -3.5px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(120, 170, 255, 0.5), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(120, 170, 255, 0.5),
+    transparent 70%
+  );
   filter: blur(1px);
 }
 /* bright inner core, flickering on its own beat */
@@ -498,7 +516,9 @@ body[data-mode="nightfall"] .smoke {
   background: none;
   border: 0;
   padding: 0;
-  transition: color 500ms ease, text-shadow 500ms ease;
+  transition:
+    color 500ms ease,
+    text-shadow 500ms ease;
 }
 body[data-mode="nightfall"] .toggle-label--night,
 body[data-mode="daybreak"] .toggle-label--day {
@@ -515,7 +535,9 @@ body[data-mode="daybreak"] .toggle-label--day {
   cursor: pointer;
   padding: 0;
   flex: 0 0 auto;
-  transition: box-shadow 600ms ease, border-color 600ms ease;
+  transition:
+    box-shadow 600ms ease,
+    border-color 600ms ease;
 }
 body[data-mode="nightfall"] .toggle {
   box-shadow: inset 10px 0 16px -10px
@@ -539,10 +561,11 @@ body[data-mode="daybreak"] .toggle {
     var(--glow-primary-deep) 70%
   );
   box-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 55%, transparent);
-  transition: left 600ms cubic-bezier(0.4, 0, 0.2, 1), background 600ms ease,
+  transition:
+    left 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    background 600ms ease,
     box-shadow 600ms ease;
 }
 body[data-mode="daybreak"] .toggle-knob {
   left: 34px;
 }
-

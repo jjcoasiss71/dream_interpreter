@@ -138,9 +138,10 @@ export function buildHistoryContext(journal: JournalEntry[]): HistoryContext {
     .slice(0, 8)
     .map(([label, count]) => ({ label, count }));
 
-  const recentDreams = journal
-    .slice(0, 3)
-    .map((entry) => ({ dreamText: entry.dreamText, createdAt: entry.createdAt }));
+  const recentDreams = journal.slice(0, 3).map((entry) => ({
+    dreamText: entry.dreamText,
+    createdAt: entry.createdAt,
+  }));
 
   return { recurringSymbols, recentDreams };
 }

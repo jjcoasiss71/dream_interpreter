@@ -12,7 +12,18 @@
     {
       "id": "water",
       "label": "Water",
-      "aliases": ["ocean", "sea", "river", "lake", "flood", "drowning", "rain", "waves", "swimming", "tide"],
+      "aliases": [
+        "ocean",
+        "sea",
+        "river",
+        "lake",
+        "flood",
+        "drowning",
+        "rain",
+        "waves",
+        "swimming",
+        "tide"
+      ],
       "perspectives": [
         {
           "framework": "jungian",
@@ -29,7 +40,14 @@
     {
       "id": "falling",
       "label": "Falling",
-      "aliases": ["fall", "fell", "falling down", "dropping", "plummeting", "losing my balance"],
+      "aliases": [
+        "fall",
+        "fell",
+        "falling down",
+        "dropping",
+        "plummeting",
+        "losing my balance"
+      ],
       "perspectives": [
         {
           "framework": "continuity-hypothesis",
@@ -46,7 +64,15 @@
     {
       "id": "being-chased",
       "label": "Being chased",
-      "aliases": ["chased", "chasing me", "running away", "being followed", "pursued", "escaping", "someone after me"],
+      "aliases": [
+        "chased",
+        "chasing me",
+        "running away",
+        "being followed",
+        "pursued",
+        "escaping",
+        "someone after me"
+      ],
       "perspectives": [
         {
           "framework": "threat-simulation",
@@ -63,7 +89,13 @@
     {
       "id": "teeth-falling-out",
       "label": "Teeth falling out",
-      "aliases": ["teeth", "losing teeth", "tooth fell out", "teeth crumbling", "broken teeth"],
+      "aliases": [
+        "teeth",
+        "losing teeth",
+        "tooth fell out",
+        "teeth crumbling",
+        "broken teeth"
+      ],
       "perspectives": [
         {
           "framework": "freudian",
@@ -80,7 +112,14 @@
     {
       "id": "flying",
       "label": "Flying",
-      "aliases": ["fly", "flew", "floating", "soaring", "levitating", "lifting off"],
+      "aliases": [
+        "fly",
+        "flew",
+        "floating",
+        "soaring",
+        "levitating",
+        "lifting off"
+      ],
       "perspectives": [
         {
           "framework": "jungian",
@@ -97,7 +136,15 @@
     {
       "id": "exam-or-test",
       "label": "Taking an exam / being tested",
-      "aliases": ["exam", "test", "unprepared", "failing a test", "didn't study", "school exam", "deadline"],
+      "aliases": [
+        "exam",
+        "test",
+        "unprepared",
+        "failing a test",
+        "didn't study",
+        "school exam",
+        "deadline"
+      ],
       "perspectives": [
         {
           "framework": "continuity-hypothesis",
@@ -114,7 +161,14 @@
     {
       "id": "death",
       "label": "Death (of self or others)",
-      "aliases": ["dying", "dead", "death", "someone died", "funeral", "I died"],
+      "aliases": [
+        "dying",
+        "dead",
+        "death",
+        "someone died",
+        "funeral",
+        "I died"
+      ],
       "perspectives": [
         {
           "framework": "jungian",
@@ -131,7 +185,13 @@
     {
       "id": "nudity",
       "label": "Being naked in public",
-      "aliases": ["naked", "nude", "no clothes", "undressed in public", "exposed"],
+      "aliases": [
+        "naked",
+        "nude",
+        "no clothes",
+        "undressed in public",
+        "exposed"
+      ],
       "perspectives": [
         {
           "framework": "freudian",
@@ -148,7 +208,14 @@
     {
       "id": "house",
       "label": "House / building",
-      "aliases": ["house", "home", "rooms", "building", "my childhood home", "a strange house"],
+      "aliases": [
+        "house",
+        "home",
+        "rooms",
+        "building",
+        "my childhood home",
+        "a strange house"
+      ],
       "perspectives": [
         {
           "framework": "jungian",

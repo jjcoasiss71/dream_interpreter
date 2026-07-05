@@ -59,7 +59,5 @@ export function getFramework(id: string): Framework | undefined {
 /** Short summaries of every framework — used as fallback grounding when no
  *  specific symbol is matched, so the app can still respond sensibly. */
 export function frameworkSummaries(): string {
-  return frameworks
-    .map((f) => `- ${f.name}: ${f.coreIdea}`)
-    .join("\n");
+  return frameworks.map((f) => `- ${f.name}: ${f.coreIdea}`).join("\n");
 }

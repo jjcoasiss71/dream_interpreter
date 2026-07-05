@@ -118,7 +118,9 @@ body {
   line-height: 1.9;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  transition: background-color 800ms ease-in-out, color 800ms ease-in-out;
+  transition:
+    background-color 800ms ease-in-out,
+    color 800ms ease-in-out;
 }
 
 /* Custom scrollbar — thin, dark, no track background. */
@@ -143,4 +145,3 @@ body {
   background: color-mix(in srgb, var(--glow-primary) 30%, transparent);
   color: var(--text-primary);
 }
-

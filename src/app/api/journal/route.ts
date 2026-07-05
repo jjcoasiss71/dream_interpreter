@@ -10,7 +10,10 @@ import { NextResponse } from "next/server";
 import { matchSymbols } from "@/lib/knowledge";
 import { buildGroundingText } from "@/lib/grounding";
 import { chat, LlmError } from "@/lib/llm";
-import { journalReadRequestSchema, type JournalReadResponse } from "@/types/api";
+import {
+  journalReadRequestSchema,
+  type JournalReadResponse,
+} from "@/types/api";
 
 export async function POST(request: Request) {
   try {

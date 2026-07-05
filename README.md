@@ -28,11 +28,13 @@ Dream interpretation is **not settled science** — there's no authoritative "wa
 
 ## Tech stack
 
-- **Framework:** Next.js 16 (App Router) + React 19 + TypeScript
-- **Styling:** a hand‑written CSS design system — every adaptive value is a CSS custom property driven by a `[data-mode]` attribute (Nightfall / Daybreak); Tailwind v4 is present only for the base reset
+- **Framework:** Next.js 16 (App Router) + React 19 + TypeScript (strict)
+- **Styling:** a hand‑written CSS design system — every adaptive value is a CSS custom property driven by a `[data-mode]` attribute (Nightfall / Daybreak); no utility framework, just a vendored base reset
 - **Type:** Cormorant Garamond + EB Garamond, with IM Fell English SC (an 1800s revival) for the title
 - **LLM:** Groq (free tier, easily upgradeable to a premium LLM); the key stays server‑side
-- **Knowledge base:** local JSON (`data/frameworks.json`, `data/symbols.json`)
+- **Validation:** zod — one shared API contract typed end to end (`src/types/api.ts`)
+- **Knowledge base:** local JSON (`src/data/frameworks.json`, `src/data/symbols.json`)
+- **Quality:** Vitest unit tests + Prettier + ESLint + typecheck, enforced by GitHub Actions CI
 - **Assets:** a composed scene photo plus separate desk / candle / paper layers, a film‑grain SVG, and a quill cursor — all in `public/`
 - **Hosting:** Vercel (auto‑deploys from GitHub)
 
@@ -40,18 +42,31 @@ Dream interpretation is **not settled science** — there's no authoritative "wa
 
 ```
 dream_interpreter/
-├── app/
-│   ├── page.tsx                 # The experience: desk scene, camera views,
-│   │                            #   writing, glow→erase reveal, the faint
-│   ├── layout.tsx               # Fonts + root layout (data-mode on <body>)
-│   ├── globals.css              # The design system: tokens, dual modes, the
-│   │                            #   scene, paper, candlelight, animations
-│   └── api/interpret/route.ts   # Server route: matches symbols, calls Groq
-├── lib/
-│   └── knowledge.ts             # Symbol matching + knowledge-base retrieval
-├── data/
-│   ├── frameworks.json          # Dream-psychology theories, with sources
-│   └── symbols.json             # Dream symbols, each per-framework annotated
+├── src/
+│   ├── app/
+│   │   ├── page.tsx             # The orchestrator: phase machine + camera,
+│   │   │                        #   composes the scene from components
+│   │   ├── layout.tsx           # Fonts + root layout (data-mode on <body>)
+│   │   └── api/
+│   │       ├── interpret/route.ts   # Reading for one dream (zod-validated)
+│   │       └── journal/route.ts     # One reflection across the whole journal
+│   ├── components/              # AppHeader, SettingsPanel, Candle,
+│   │                            #   ResultFace, JournalModal, DreamOverlays
+│   ├── hooks/                   # useJournal, useTimers, usePaperHeightAnimation
+│   ├── lib/
+│   │   ├── knowledge.ts         # Symbol matching + knowledge-base retrieval
+│   │   ├── grounding.ts         # Sourced-perspective prompt grounding
+│   │   ├── llm.ts               # The one LLM client (Groq, server-only)
+│   │   ├── journal.ts           # On-device journal (versioned localStorage)
+│   │   └── env.ts               # Validated env access
+│   ├── styles/                  # The design system, split by concern —
+│   │                            #   tokens, scene, letter, journal, dream…
+│   ├── types/                   # api.ts (shared contract) + dream.ts
+│   └── data/
+│       ├── frameworks.json      # Dream-psychology theories, with sources
+│       └── symbols.json         # Dream symbols, each per-framework annotated
+├── docs/                        # Project plan + immersive UI roadmap
+├── .github/workflows/ci.yml    # Lint, typecheck, test, build on every push
 └── public/
     ├── scene.jpg                # Composed candlelit desk (opening backdrop)
     ├── desk.jpg, paper.jpg, candle.png   # Scene layers
@@ -61,7 +76,7 @@ dream_interpreter/
 ## Local development
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+
 - A free Groq API key from [https://console.groq.com/keys](https://console.groq.com/keys)
 
 ### Setup
@@ -91,11 +106,11 @@ dream_interpreter/
 
 ## Grow the knowledge base
 
-The knowledge base lives in **data/** as JSON. Add symbols or frameworks anytime — the app picks them up automatically, no code changes needed.
+The knowledge base lives in **src/data/** as JSON. Add symbols or frameworks anytime — the app picks them up automatically, no code changes needed.
 
 ### Add a new symbol
 
-Edit `data/symbols.json` and add an entry with `id`, `label`, `aliases`, and `perspectives`:
+Edit `src/data/symbols.json` and add an entry with `id`, `label`, `aliases`, and `perspectives`:
 
 ```json
 {
@@ -128,4 +143,4 @@ MIT
 
 ---
 
-See the [project plan](./Dream%20Interpreter%20—%20Project%20Plan.md) and the [immersive UI roadmap](./Dream%20Interpreter%20—%20Immersive%20UI%20Roadmap.md) for fuller context.
+See the [project plan](./docs/project-plan.md) and the [immersive UI roadmap](./docs/immersive-ui-roadmap.md) for fuller context.

@@ -84,7 +84,8 @@ export function useJournal() {
         }),
       });
       const data = (await res.json()) as JournalReadResponse & ApiError;
-      if (!res.ok) setUltimateError(data.error ?? "Could not read the journal.");
+      if (!res.ok)
+        setUltimateError(data.error ?? "Could not read the journal.");
       else setUltimate(data.reading);
     } catch {
       setUltimateError("Could not reach the interpreter.");

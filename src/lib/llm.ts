@@ -54,7 +54,10 @@ export async function chat(
 
   if (!res.ok) {
     console.error("Groq error:", await res.text());
-    throw new LlmError("The interpreter is busy right now. Please try again.", 502);
+    throw new LlmError(
+      "The interpreter is busy right now. Please try again.",
+      502
+    );
   }
 
   const data = await res.json();

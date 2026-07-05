@@ -240,7 +240,9 @@ export default function Home() {
       <div className="faint-veil" aria-hidden="true" />
 
       {/* The dream world we fall into (placeholder — to be built out later) */}
-      {inDream && <Dreamworld active={phase === "dreamworld"} onWake={wakeUp} />}
+      {inDream && (
+        <Dreamworld active={phase === "dreamworld"} onWake={wakeUp} />
+      )}
 
       {journalOpen && (
         <JournalModal
