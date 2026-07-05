@@ -63,7 +63,9 @@ export default function Home() {
     const reduced = prefersReducedMotion();
     setError("");
     setResult(null);
-    setView("paper"); // pull back so the whole sheet is in view
+    // Stay on the "writing" camera position (don't pull back to "paper") so
+    // the result sheet keeps the exact same top line position it had while
+    // typing — no vertical jump between writing and reveal.
     setSentText(dream); // the words that will glow and burn away
     setPhase("sending");
 
