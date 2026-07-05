@@ -110,7 +110,11 @@
    own desk/background treatment via the [data-view] hooks below.
    =========================================================================== */
 .stage {
-  transform-origin: center 42%;
+  /* A FIXED pixel origin (not a %) — .stage's own height varies a lot with
+     content (a blank textarea vs. the full two-part reading), and a
+     percentage origin would anchor to a point that moves as that height
+     changes, dragging the paper's top edge down as the reading grows. */
+  transform-origin: center 300px;
   transition: transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
