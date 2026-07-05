@@ -1,0 +1,103 @@
+/* ===========================================================================
+   THE REVEAL — the interpretation settling onto the sheet, line by line,
+   plus shared dividers and the error notice.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Dividers / error
+   --------------------------------------------------------------------------- */
+.rule {
+  height: 1px;
+  border: 0;
+  margin: 1.75rem 0;
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.notice {
+  margin-top: 2.5rem;
+  padding: 1.1rem 1.4rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--card-bg));
+  color: var(--text-primary);
+  font-style: italic;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   The reading on the sheet
+   --------------------------------------------------------------------------- */
+.interpretation {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.9rem;
+  line-height: 1.95;
+}
+/* the two parts of the reading: the meaning, then what it foretells */
+.reading-part-title {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-title), var(--font-heading), serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--ink) 82%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  padding-bottom: 0.5rem;
+}
+.reading-part-title--omen {
+  margin-top: 2.4rem;
+}
+.interpretation--omen {
+  font-style: italic;
+}
+.reveal-line {
+  display: block;
+  margin: 0 0 0.85rem;
+  opacity: 0;
+  transform: translateY(8px);
+}
+/* lines unroll as the interpretation settles onto the sheet */
+.sheet-result .reveal-line {
+  animation: lineIn 1.1s ease forwards;
+}
+.reveal-line:last-child {
+  margin-bottom: 0;
+}
+@keyframes lineIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.result-meta {
+  margin-top: 1.75rem;
+  font-size: 0.96rem;
+  color: color-mix(in srgb, var(--ink) 72%, transparent);
+}
+.result-meta p {
+  margin: 0.35rem 0;
+}
+.result-meta .meta-key {
+  color: var(--ink);
+  font-style: italic;
+}
+.disclaimer {
+  margin: 1.5rem 0 0;
+  font-size: 0.84rem;
+  font-style: italic;
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+
+/* after the interpretation: write another dream */
+.write-again {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: color-mix(in srgb, var(--ink) 66%, transparent);
+  transition: color 400ms ease;
+}
+.write-again:hover {
+  color: var(--ink);
+}

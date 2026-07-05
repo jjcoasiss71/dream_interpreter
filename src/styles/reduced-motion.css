@@ -8,7 +8,6 @@
   .candle-halo,
   .candle-photo,
   .parchment::after,
-  .scene-flame,
   .scene-hint,
   .grain,
   .smoke path,
@@ -16,21 +15,11 @@
   .reveal-line,
   .symbol-particle,
   .dream-vanishing,
-  .page-glow--night,
-  .cine-text,
-  .cine-nib {
+  .page-glow--night {
     animation: none !important;
   }
   .sheet-result .reveal-line {
     animation: none !important;
-  }
-  /* keep the turn instant (still reveals the interpretation), no enlarge */
-  .leaf--dream {
-    transition: none !important;
-  }
-  .viewport[data-phase="fainting"] .journal {
-    transition: none !important;
-    transform: none !important;
   }
   .stage {
     transition: none !important;
@@ -39,17 +28,14 @@
     opacity: 0.04 !important;
   }
   .shell,
-  .reveal-line,
-  .cine-text {
+  .reveal-line {
     opacity: 1 !important;
     transform: none !important;
     clip-path: none !important;
   }
   .camera,
   .desk,
-  .page-glow,
-  .cine-stage,
-  .cine-fold {
+  .page-glow {
     transition: opacity 600ms ease !important;
   }
   .viewport[data-phase="fainting"] .camera,

@@ -1,12 +1,6 @@
 /* ===========================================================================
    STEP 3 + 4 — The letter (stationery textarea) + fountain-pen cursor
    =========================================================================== */
-.composer {
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
 .dream-input {
   width: 100%;
   min-height: 150px;

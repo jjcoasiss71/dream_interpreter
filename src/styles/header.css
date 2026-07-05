@@ -46,15 +46,6 @@
     0 2px 20px rgba(0, 0, 0, 0.65);
 }
 
-/* the Nightfall/Daybreak toggle, compacted for the header */
-.toggle-row--header {
-  margin: 0;
-  gap: 0.7rem;
-}
-.toggle-row--header .toggle-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-}
 .app-header__controls {
   display: flex;
   align-items: center;
@@ -105,15 +96,6 @@
   text-transform: uppercase;
   text-align: center;
   color: var(--text-secondary);
-}
-.settings-panel .toggle-row {
-  margin: 0;
-}
-.settings-rule {
-  height: 1px;
-  border: 0;
-  margin: 1.1rem 0 0.9rem;
-  background: color-mix(in srgb, var(--glow-primary) 16%, transparent);
 }
 .settings-journal__count {
   margin: 0 0 0.7rem;
@@ -179,30 +161,6 @@
   box-shadow: 0 0 10px color-mix(in srgb, var(--glow-primary) 55%, transparent);
 }
 
-.settings-journal__actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.4rem;
-  margin-top: 0.2rem;
-}
-.journal-open-btn {
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  font-family: var(--font-heading), serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--glow-primary) 80%, var(--text-primary));
-  transition:
-    color 300ms ease,
-    text-shadow 300ms ease;
-}
-.journal-open-btn:hover {
-  text-shadow: 0 0 12px color-mix(in srgb, var(--glow-primary) 50%, transparent);
-}
 .forget-all {
   display: block;
   margin: 0.5rem auto 0;

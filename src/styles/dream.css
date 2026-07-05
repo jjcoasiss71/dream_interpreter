@@ -28,11 +28,6 @@
   transform: scale(1.5);
   filter: blur(11px) saturate(0.65) brightness(0.82);
 }
-/* the parchment itself enlarges a little further than the scene */
-.viewport[data-phase="fainting"] .journal {
-  transform: scale(1.22);
-  transition: transform 3000ms ease;
-}
 /* the candle flames flicker harder as you go under */
 .viewport[data-phase="fainting"] .candle-halo {
   animation-duration: 0.5s;
