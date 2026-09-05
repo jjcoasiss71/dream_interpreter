@@ -8,7 +8,7 @@
 import { getEnv } from "@/lib/env";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile";
+export const MODEL = "openai/gpt-oss-120b";
 
 export type ChatMessage = {
   role: "system" | "user" | "assistant";
@@ -25,10 +25,57 @@ export class LlmError extends Error {
   }
 }
 
+/** Groq's own code for a failed call, e.g. "model_not_found". "" if absent. */
+function providerCode(body: string): string {
+  try {
+    const code = JSON.parse(body)?.error?.code ?? JSON.parse(body)?.error?.type;
+    return typeof code === "string" ? code : "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Turn a failed Groq response into the error the dreamer sees.
+ * Only 429 is genuinely "busy". Everything else used to wear that same
+ * message, which is how a decommissioned model spent weeks looking like load.
+ */
+export function describeFailure(status: number, body: string): LlmError {
+  const code = providerCode(body);
+  const detail = `(Groq ${status}${code ? `: ${code}` : ""})`;
+
+  if (status === 429) {
+    return new LlmError(
+      `The interpreter is busy right now. Please try again in a moment. ${detail}`,
+      429
+    );
+  }
+  if (status === 401 || status === 403) {
+    return new LlmError(
+      `The interpreter's key was refused — the server needs a valid GROQ_API_KEY. ${detail}`,
+      500
+    );
+  }
+  if (status === 404) {
+    return new LlmError(
+      `The interpreter's model "${MODEL}" is no longer available. ${detail}`,
+      500
+    );
+  }
+  if (status >= 500) {
+    return new LlmError(
+      `The interpreter could not be reached. Please try again. ${detail}`,
+      502
+    );
+  }
+  return new LlmError(`The interpreter refused the request. ${detail}`, 502);
+}
+
 /**
  * Run a chat completion and return the assistant's text.
  * Throws LlmError with an HTTP status suited to the failure:
- *   500 — server misconfigured (no key); 502 — provider failed.
+ *   500 — server misconfigured (no key, bad key, retired model);
+ *   429 — provider rate limit; 502 — provider failed or refused.
  */
 export async function chat(
   messages: ChatMessage[],
@@ -53,11 +100,9 @@ export async function chat(
   });
 
   if (!res.ok) {
-    console.error("Groq error:", await res.text());
-    throw new LlmError(
-      "The interpreter is busy right now. Please try again.",
-      502
-    );
+    const body = await res.text();
+    console.error("Groq error:", res.status, body);
+    throw describeFailure(res.status, body);
   }
 
   const data = await res.json();
